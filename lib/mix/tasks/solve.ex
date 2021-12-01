@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Solve do
     File.read!("resources/01-1.txt")
     |> String.split("\n", trim: true)
     |> Enum.map(&String.to_integer/1)
-    |> AdventOfCode.Puzzles.Day011.solve()
+    |> AdventOfCode.Puzzles.Day012.solve()
     |> IO.puts()
   end
 end

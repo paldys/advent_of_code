@@ -44,6 +44,10 @@ defmodule AdventOfCode.Puzzles.Day012 do
   Consider sums of a three-measurement sliding window. How many sums are
   larger than the previous sum?
   """
+  def load() do
+    AdventOfCode.Puzzles.Day011.load()
+  end
+
   def solve(measurements) when measurements.length < 4 do
     0
   end

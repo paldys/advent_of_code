@@ -46,6 +46,12 @@ defmodule AdventOfCode.Puzzles.Day011 do
 
   How many measurements are larger than the previous measurement?
   """
+  def load() do
+    File.read!("resources/01-1.txt")
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.to_integer/1)
+  end
+
   def solve(measurements, increases \\ 0)
 
   def solve([], increases) do

@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Solve do
   use Mix.Task
 
-  alias AdventOfCode.Puzzles.Day021, as: Puzzle
+  alias AdventOfCode.Puzzles.Day022, as: Puzzle
 
   @shortdoc "Solve the puzzle"
   def run(_) do

@@ -53,19 +53,19 @@ defmodule AdventOfCode.Puzzles.Day012 do
   end
 
   def solve(measurements) do
-    {sliding_window, rest} = Enum.split(measurements, 3)
-    _solve(sliding_window, rest, 0)
+    {[sw_1 | [sw_2 | [sw_3]]], rest} = Enum.split(measurements, 3)
+    _solve(sw_1, sw_2, sw_3, rest, 0)
   end
 
-  defp _solve(_, [], increases) do
+  defp _solve(_, _, _, [], increases) do
     increases
   end
 
-  defp _solve([sw_head | sw_tail], [head | tail], increases) when sw_head < head do
-    _solve(sw_tail ++ [head], tail, increases + 1)
+  defp _solve(sw_1, sw_2, sw_3, [head | tail], increases) when sw_1 < head do
+    _solve(sw_2, sw_3, head, tail, increases + 1)
   end
 
-  defp _solve([_ | sw_tail], [head | tail], increases) do
-    _solve(sw_tail ++ [head], tail, increases)
+  defp _solve(_, sw_2, sw_3, [head | tail], increases) do
+    _solve(sw_2, sw_3, head, tail, increases)
   end
 end

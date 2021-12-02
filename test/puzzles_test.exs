@@ -15,4 +15,9 @@ defmodule AdventOfCode.PuzzlesTest do
     commands = [{:forward, 5}, {:down, 5}, {:forward, 8}, {:up, 3}, {:down, 8}, {:forward, 2}]
     assert AdventOfCode.Puzzles.Day021.solve(commands) == 150
   end
+
+  test "day 02-2 puzzle" do
+    commands = [{:forward, 5}, {:down, 5}, {:forward, 8}, {:up, 3}, {:down, 8}, {:forward, 2}]
+    assert AdventOfCode.Puzzles.Day022.solve(commands) == 900
+  end
 end

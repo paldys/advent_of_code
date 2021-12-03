@@ -53,7 +53,7 @@ defmodule AdventOfCode.Puzzles.Day012 do
   end
 
   def solve(measurements) do
-    {[sw_1 | [sw_2 | [sw_3]]], rest} = Enum.split(measurements, 3)
+    {[sw_1, sw_2, sw_3], rest} = Enum.split(measurements, 3)
     _solve(sw_1, sw_2, sw_3, rest, 0)
   end
 

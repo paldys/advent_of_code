@@ -39,7 +39,7 @@ defmodule AdventOfCode.Puzzles.Day021 do
   """
   @spec load() :: [{:forward | :down | :up, integer()}]
   def load() do
-    File.read!("resources/02-1.txt")
+    File.read!("resources/day-02-input.txt")
     |> String.split("\n", trim: true)
     |> Enum.map(fn row -> String.split(row, " ") end)
     |> Enum.map(fn [command_str, units_str] ->

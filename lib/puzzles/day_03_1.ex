@@ -52,7 +52,7 @@ defmodule AdventOfCode.Puzzles.Day031 do
   of the submarine? (Be sure to represent your answer in decimal, not binary.)
   """
   def load() do
-    File.read!("resources/03-1.txt")
+    File.read!("resources/day-03-input.txt")
     |> String.split("\n", trim: true)
     |> Enum.map(&String.to_charlist/1)
   end

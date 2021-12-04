@@ -108,4 +108,8 @@ defmodule AdventOfCode.PuzzlesTest do
   test "day 04-1 puzzle" do
     assert AdventOfCode.Puzzles.Day041.solve({@day_04_test_draws, @day_04_test_boards}) == 4512
   end
+
+  test "day 04-2 puzzle" do
+    assert AdventOfCode.Puzzles.Day042.solve({@day_04_test_draws, @day_04_test_boards}) == 1924
+  end
 end

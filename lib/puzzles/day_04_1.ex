@@ -58,29 +58,17 @@ defmodule AdventOfCode.Puzzles.Day041 do
   To guarantee victory against the giant squid, figure out which board will
   win first. What will your final score be if you choose that board?
   """
+
+  alias AdventOfCode.Utils.Bingo
+
   def load() do
-    [draw_row | board_input] =
-      File.read!("resources/day-04-input.txt")
-      |> String.split("\n", trim: true)
-
-    draws =
-      String.split(draw_row, ",", trim: true)
-      |> Enum.map(&String.to_integer/1)
-
-    boards =
-      Enum.map(board_input, fn row ->
-        String.split(row, " ", trim: true)
-        |> Enum.map(&String.to_integer/1)
-      end)
-      |> Enum.chunk_every(5)
-
-    {draws, boards}
+    AdventOfCode.Puzzles.Day041.load()
   end
 
   def solve({draws, boards}) do
-    boards = prepare_boards(boards)
+    boards = Bingo.bingo_boards(boards)
 
-    {winning_draw, winning_board} = play_bingo(draws, boards)
+    {winning_draw, winning_board} = find_bingo_winner(draws, boards)
 
     winning_draw *
       (List.flatten(winning_board)
@@ -89,52 +77,15 @@ defmodule AdventOfCode.Puzzles.Day041 do
        |> Enum.sum())
   end
 
-  defp prepare_boards(boards) do
-    map_boards(boards, fn number -> {number, :not_drawn} end)
-  end
+  defp find_bingo_winner([draw | upcoming_draws], boards) do
+    updated_boards = Bingo.play_bingo(draw, boards)
 
-  defp play_bingo([draw | upcoming_draws], boards) do
-    updated_boards =
-      map_boards(boards, fn {n, is_drawn} ->
-        if n == draw, do: {n, :drawn}, else: {n, is_drawn}
-      end)
-
-    winning_board = Enum.find(updated_boards, nil, &is_winning_board(&1))
+    winning_board = Enum.find(updated_boards, nil, &Bingo.is_winning_board/1)
 
     if winning_board == nil do
-      play_bingo(upcoming_draws, updated_boards)
+      find_bingo_winner(upcoming_draws, updated_boards)
     else
       {draw, winning_board}
     end
-  end
-
-  defp map_boards(boards, fun) do
-    Enum.map(boards, fn board ->
-      Enum.map(board, fn row ->
-        Enum.map(row, fun)
-      end)
-    end)
-  end
-
-  defp is_winning_board(board) do
-    is_winning_board_horizontal(board) || is_winning_board_vertical(board)
-  end
-
-  defp is_winning_board_horizontal(board) do
-    Enum.any?(board, fn row ->
-      Enum.all?(row, fn {_, is_drawn} -> is_drawn == :drawn end)
-    end)
-  end
-
-  defp is_winning_board_vertical(board) do
-    board_width = length(hd(board))
-
-    Enum.to_list(1..board_width)
-    |> Enum.any?(fn i ->
-      Enum.all?(board, fn row ->
-        {_, is_drawn} = Enum.at(row, i - 1)
-        is_drawn == :drawn
-      end)
-    end)
   end
 end

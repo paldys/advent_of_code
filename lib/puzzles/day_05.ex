@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Puzzles.Day051 do
+defmodule AdventOfCode.Puzzles.Day05 do
   @moduledoc """
   You come across a field of hydrothermal vents on the ocean floor! These vents
   constantly produce large, opaque clouds, so it would be best to avoid them
@@ -55,8 +55,39 @@ defmodule AdventOfCode.Puzzles.Day051 do
 
   Consider only horizontal and vertical lines. At how many points do at least
   two lines overlap?
-  """
 
+  --- Part Two ---
+
+  Unfortunately, considering only horizontal and vertical lines doesn't give
+  you the full picture; you need to also consider diagonal lines.
+
+  Because of the limits of the hydrothermal vent mapping system, the lines
+  in your list will only ever be horizontal, vertical, or a diagonal line at
+  exactly 45 degrees. In other words:
+
+      An entry like 1,1 -> 3,3 covers points 1,1, 2,2, and 3,3.
+      An entry like 9,7 -> 7,9 covers points 9,7, 8,8, and 7,9.
+
+  Considering all lines from the above example would now produce the following
+  diagram:
+
+  1.1....11.
+  .111...2..
+  ..2.1.111.
+  ...1.2.2..
+  .112313211
+  ...1.2....
+  ..1...1...
+  .1.....1..
+  1.......1.
+  222111....
+
+  You still need to determine the number of points where at least two lines
+  overlap. In the above example, this is still anywhere in the diagram with
+  a 2 or larger - now a total of 12 points.
+
+  Consider all of the lines. At how many points do at least two lines overlap?
+  """
   def load() do
     File.read!("resources/day-05-input.txt")
     |> String.split("\n", trim: true)
@@ -72,15 +103,19 @@ defmodule AdventOfCode.Puzzles.Day051 do
     end)
   end
 
-  def solve(lines) do
-    Enum.map(lines, &expand_lines/1)
+  def solve1(lines) do
+    Enum.filter(lines, fn {{x1, y1}, {x2, y2}} -> x1 == x2 || y1 == y2 end)
+    |> Enum.map(&expand_lines/1)
     |> List.flatten()
     |> Enum.frequencies()
     |> Enum.count(fn {_, frequency} -> frequency > 1 end)
   end
 
-  defp expand_lines({{x, y1}, {x, y2}}) when y1 > y2 do
-    expand_lines({{x, y2}, {x, y1}})
+  def solve2(lines) do
+    Enum.map(lines, &expand_lines/1)
+    |> List.flatten()
+    |> Enum.frequencies()
+    |> Enum.count(fn {_, frequency} -> frequency > 1 end)
   end
 
   defp expand_lines({{x, y1}, {x, y2}}) do
@@ -88,16 +123,12 @@ defmodule AdventOfCode.Puzzles.Day051 do
     |> Enum.map(fn y -> {x, y} end)
   end
 
-  defp expand_lines({{x1, y}, {x2, y}}) when x1 > x2 do
-    expand_lines({{x2, y}, {x1, y}})
-  end
-
   defp expand_lines({{x1, y}, {x2, y}}) do
     Enum.to_list(x1..x2)
     |> Enum.map(fn x -> {x, y} end)
   end
 
-  defp expand_lines(_) do
-    []
+  defp expand_lines({{x1, y1}, {x2, y2}}) do
+    Enum.zip(Enum.to_list(x1..x2), Enum.to_list(y1..y2))
   end
 end

@@ -112,4 +112,21 @@ defmodule AdventOfCode.PuzzlesTest do
   test "day 04-2 puzzle" do
     assert AdventOfCode.Puzzles.Day042.solve({@day_04_test_draws, @day_04_test_boards}) == 1924
   end
+
+  @day_5_test_input [
+    {{0, 9}, {5, 9}},
+    {{8, 0}, {0, 8}},
+    {{9, 4}, {3, 4}},
+    {{2, 2}, {2, 1}},
+    {{7, 0}, {7, 4}},
+    {{6, 4}, {2, 0}},
+    {{0, 9}, {2, 9}},
+    {{3, 4}, {1, 4}},
+    {{0, 0}, {8, 8}},
+    {{5, 5}, {8, 2}}
+  ]
+
+  test "day 05-1 puzzle" do
+    assert AdventOfCode.Puzzles.Day051.solve(@day_5_test_input) == 5
+  end
 end

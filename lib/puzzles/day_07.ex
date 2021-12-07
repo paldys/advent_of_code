@@ -89,40 +89,38 @@ defmodule AdventOfCode.Puzzles.Day07 do
   end
 
   def solve1(positions) do
-    find_most_efficient(positions, &crab_sub_consumption1/2)
+    find_most_efficient(positions, &crab_sub_consumption1/1)
   end
 
-  def find_most_efficient(positions, consumption, end_position \\ 0, previous_consumption \\ nil)
-
-  def find_most_efficient(positions, consumption_fun, 0, _) do
-    find_most_efficient(positions, consumption_fun, 1, consumption_fun.(positions, 0))
+  def solve2(positions) do
+    find_most_efficient(positions, &crab_sub_consumption2/1)
   end
 
-  def find_most_efficient(positions, consumption_fun, end_position, previous_consumption) do
-    consumption = consumption_fun.(positions, end_position)
+  defp find_most_efficient(
+         positions,
+         consumption_fun,
+         end_position \\ 0,
+         previous_consumption \\ nil
+       ) do
+    consumption =
+      Enum.map(positions, consumption_fun.(end_position))
+      |> Enum.sum()
 
-    if consumption > previous_consumption do
+    if previous_consumption != nil && consumption > previous_consumption do
       previous_consumption
     else
       find_most_efficient(positions, consumption_fun, end_position + 1, consumption)
     end
   end
 
-  def crab_sub_consumption1(positions, end_position) do
-    Enum.map(positions, fn p -> abs(end_position - p) end)
-    |> Enum.sum()
+  defp crab_sub_consumption1(expected_position) do
+    fn position -> abs(expected_position - position) end
   end
 
-  def solve2(positions) do
-    find_most_efficient(positions, &crab_sub_consumption2/2)
-  end
-
-  def crab_sub_consumption2(positions, end_position) do
-    Enum.map(positions, fn p -> single_crab_sub_consumption2(abs(end_position - p)) end)
-    |> Enum.sum()
-  end
-
-  def single_crab_sub_consumption2(steps) do
-    steps * (steps + 1) / 2
+  defp crab_sub_consumption2(expected_position) do
+    fn position ->
+      steps = abs(expected_position - position)
+      div(steps * (steps + 1), 2)
+    end
   end
 end

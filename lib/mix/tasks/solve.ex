@@ -10,8 +10,10 @@ defmodule Mix.Tasks.Solve do
 
     puzzle_to_solve = if puzzle == "1", do: :solve1, else: :solve2
 
-    apply(puzzle_solver_module, puzzle_to_solve, [puzzle_input])
-    |> IO.puts()
+    {elapsed_time, output} = :timer.tc(puzzle_solver_module, puzzle_to_solve, [puzzle_input])
+
+    IO.puts("Got result in #{elapsed_time / 1_000} ms:")
+    IO.puts(output)
   end
 
   defp puzzle_solver_module(day) do

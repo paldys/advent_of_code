@@ -99,25 +99,21 @@ defmodule AdventOfCode.Puzzles.Day06 do
     |> Enum.sum()
   end
 
-  defp simulate_days(timers, 0) do
+  @first_cycle 9
+  @spawning_cycle 7
+
+  defp simulate_days(timers, last_day, current_day \\ 0)
+
+  defp simulate_days(timers, day, day) do
     timers
   end
 
-  defp simulate_days(timers, days) do
-    Enum.reduce(timers, %{}, fn {timer, count}, acc ->
-      case timer do
-        0 ->
-          Map.put(acc, 8, count)
-          |> Map.update(6, count, fn c -> c + count end)
+  defp simulate_days(timers, last_day, current_day) do
+    spawners = Map.get(timers, rem(current_day, @first_cycle), 0)
+    back_to_cycle = rem(current_day + @spawning_cycle, @first_cycle)
 
-        7 ->
-          Map.update(acc, 6, count, fn c -> c + count end)
-
-        _ ->
-          Map.put(acc, timer - 1, count)
-      end
-    end)
-    |> simulate_days(days - 1)
+    Map.update(timers, back_to_cycle, spawners, fn c -> c + spawners end)
+    |> simulate_days(last_day, current_day + 1)
   end
 
   def solve2(timers, days \\ 256) do

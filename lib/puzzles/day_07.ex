@@ -56,26 +56,29 @@ defmodule AdventOfCode.Puzzles.Day07 do
     Loader.load_comma_separated_numbers("resources/day-07-input.txt")
   end
 
-  def solve1(positions, end_position \\ 0, previous_consumption \\ nil)
-
-  def solve1(positions, 0, _) do
-    consumption =
-      Enum.map(positions, fn p -> abs(p) end)
-      |> Enum.sum()
-
-    solve1(positions, 1, consumption)
+  def solve1(positions) do
+    find_most_efficient(positions, &crab_sub_consumption/2)
   end
 
-  def solve1(positions, end_position, previous_consumption) do
-    consumption =
-      Enum.map(positions, fn p -> abs(end_position - p) end)
-      |> Enum.sum()
+  def find_most_efficient(positions, consumption, end_position \\ 0, previous_consumption \\ nil)
+
+  def find_most_efficient(positions, consumption_fun, 0, _) do
+    find_most_efficient(positions, consumption_fun, 1, consumption_fun.(positions, 0))
+  end
+
+  def find_most_efficient(positions, consumption_fun, end_position, previous_consumption) do
+    consumption = consumption_fun.(positions, end_position)
 
     if consumption > previous_consumption do
       previous_consumption
     else
-      solve1(positions, end_position + 1, consumption)
+      find_most_efficient(positions, consumption_fun, end_position + 1, consumption)
     end
+  end
+
+  def crab_sub_consumption(positions, end_position) do
+    Enum.map(positions, fn p -> abs(end_position - p) end)
+    |> Enum.sum()
   end
 
   def solve2(_) do

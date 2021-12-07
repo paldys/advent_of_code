@@ -82,11 +82,11 @@ defmodule AdventOfCode.Puzzles.Day06 do
   After 256 days in the example above, there would be a total of 26984457539
   lanternfish!
   """
+
+  alias AdventOfCode.Utils.Loader
+
   def load() do
-    File.read!("resources/day-06-input.txt")
-    |> String.trim()
-    |> String.split(",", trim: true)
-    |> Enum.map(&String.to_integer/1)
+    Loader.load_comma_separated_numbers("resources/day-06-input.txt")
   end
 
   def solve1(timers, days \\ 80) do

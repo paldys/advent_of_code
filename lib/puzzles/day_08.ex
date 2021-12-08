@@ -105,10 +105,81 @@ defmodule AdventOfCode.Puzzles.Day08 do
   unique number of segments (highlighted above).
 
   In the output values, how many times do digits 1, 4, 7, or 8 appear?
+
+  --- Part Two ---
+
+  Through a little deduction, you should now be able to determine the remaining
+  digits. Consider again the first example above:
+
+  acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab |
+  cdfeb fcadb cdfeb cdbaf
+
+  After some careful analysis, the mapping between signal wires and segments
+  only make sense in the following configuration:
+
+   dddd
+  e    a
+  e    a
+  ffff
+  g    b
+  g    b
+   cccc
+
+  So, the unique signal patterns would correspond to the following digits:
+
+      acedgfb: 8
+      cdfbe: 5
+      gcdfa: 2
+      fbcad: 3
+      dab: 7
+      cefabd: 9
+      cdfgeb: 6
+      eafb: 4
+      cagedb: 0
+      ab: 1
+
+  Then, the four digits of the output value can be decoded:
+
+      cdfeb: 5
+      fcadb: 3
+      cdfeb: 5
+      cdbaf: 3
+
+  Therefore, the output value for this entry is 5353.
+
+  Following this same process for each entry in the second, larger example
+  above, the output value of each entry can be determined:
+
+      fdgacbe cefdb cefbgd gcbe: 8394
+      fcgedb cgb dgebacf gc: 9781
+      cg cg fdcagb cbg: 1197
+      efabcd cedba gadfec cb: 9361
+      gecf egdcabf bgf bfgea: 4873
+      gebdcfa ecba ca fadegcb: 8418
+      cefg dcbef fcge gbcadfe: 4548
+      ed bcgafe cdgba cbgef: 1625
+      gbdfcae bgc cg cgb: 8717
+      fgae cfgab fg bagce: 4315
+
+  Adding all of the output values in this larger example produces 61229.
+
+  For each entry, determine all of the wire/segment connections and decode the
+  four-digit output values. What do you get if you add up all of the output
+  values?
+
   """
 
-  # 1 -> 2, 4 -> 4, 7 -> 3, 8 -> 7
-  @unique_lengths MapSet.new([2, 3, 4, 7])
+  @signal_one_length 2
+  @signal_four_length 4
+  @signal_seven_length 3
+  @signal_eight_length 7
+
+  @unique_lengths MapSet.new([
+                    @signal_one_length,
+                    @signal_seven_length,
+                    @signal_four_length,
+                    @signal_eight_length
+                  ])
 
   def load() do
     File.read!("resources/day-08-input.txt")
@@ -132,7 +203,74 @@ defmodule AdventOfCode.Puzzles.Day08 do
     |> Enum.sum()
   end
 
-  def solve2(_) do
-    nil
+  def solve2(signals) do
+    Enum.map(signals, &decode_output/1)
+    |> Enum.sum()
+  end
+
+  defp decode_output({all_patterns, output}) do
+    wiring = decode_wiring(all_patterns)
+
+    normalize_signals(output)
+    |> Enum.map(fn signal -> Map.get(wiring, signal) end)
+    |> Enum.reduce(0, fn n, acc -> acc * 10 + n end)
+  end
+
+  defp decode_wiring(patterns) do
+    patterns = normalize_signals(patterns)
+    patterns_by_length = Enum.group_by(patterns, &length/1)
+
+    [signal_one] = Map.get(patterns_by_length, @signal_one_length)
+    [signal_four] = Map.get(patterns_by_length, @signal_four_length)
+    [signal_seven] = Map.get(patterns_by_length, @signal_seven_length)
+    [signal_eight] = Map.get(patterns_by_length, @signal_eight_length)
+
+    signal_zero_six_nine = Map.get(patterns_by_length, 6)
+    signal_two_three_five = Map.get(patterns_by_length, 5)
+
+    {[signal_nine], signal_zero_six} =
+      Enum.split_with(signal_zero_six_nine, fn pattern ->
+        delete_all(pattern, signal_four)
+        |> length() == 2
+      end)
+
+    {[signal_zero], [signal_six]} =
+      Enum.split_with(signal_zero_six, fn pattern ->
+        delete_all(pattern, signal_seven)
+        |> length() == 3
+      end)
+
+    {[signal_two], signal_three_five} =
+      Enum.split_with(signal_two_three_five, fn pattern ->
+        delete_all(pattern, signal_nine)
+        |> length() == 1
+      end)
+
+    {[signal_three], [signal_five]} =
+      Enum.split_with(signal_three_five, fn pattern ->
+        delete_all(pattern, signal_seven)
+        |> length() == 2
+      end)
+
+    %{
+      signal_zero => 0,
+      signal_one => 1,
+      signal_two => 2,
+      signal_three => 3,
+      signal_four => 4,
+      signal_five => 5,
+      signal_six => 6,
+      signal_seven => 7,
+      signal_eight => 8,
+      signal_nine => 9
+    }
+  end
+
+  defp delete_all(list1, list2) do
+    List.foldl(list2, list1, fn x, acc -> List.delete(acc, x) end)
+  end
+
+  defp normalize_signals(signals) do
+    Enum.map(signals, &Enum.sort/1)
   end
 end

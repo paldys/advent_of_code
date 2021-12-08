@@ -88,15 +88,104 @@ defmodule AdventOfCode.Puzzles.Day07 do
     Loader.load_comma_separated_numbers("resources/day-07-input.txt")
   end
 
+  @doc """
+  Let p1, p2, p3, ... pn be the position of the crabs. Let q be the end
+  position. The function whose minimum we are looking for is:
+
+  abs(p1 - q) + abs(p2 - q) + abs(p3 - q) + ... + abs(pn - q)
+
+  Where q is an integer and q >= 0. Let's group the number of crabs
+  at each positions and sort them.
+
+  1  2  3  0  1  0  0  1  0  0  0  0  0  0  1  0  1  0     -- number of crabs
+  |- |- |- |- |- |- |- |- |- |- |- |- |- |- |- |- |- |- ...
+  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17     -- position
+
+  ^0
+  At zero, the consumption is exactly the sum of each position, i.e. 49. Now,
+  let's keep track of two values, let's call them 'below' and 'over'. 'below'
+  will track the number of crabs below or equal our position, that means
+  for 0 it will be 1. 'over' will be the number of crabs above this position
+  and that is 9.
+
+     ^1
+  At 1, we will get a position away from 1 crab (the value 'below') and we will
+  get closer to 9 crabs (the value 'over'). i.e. the new value using the previous
+  compution will be: 49 + 1 - 9 = 41
+  The new 'below' value will be 3 and the new 'over' value will be 7
+
+        ^2
+  At 2, we will get a position away from 3 crabs and get closer to 7 crabs. So,
+  again we can calculate the new consumption from the previous value:
+  41 + 3 - 7 = 37
+
+  And so on...
+
+  """
   def solve1(positions) do
-    find_most_efficient(positions, &crab_sub_consumption1/1)
+    most_efficient1(positions)
+  end
+
+  defp most_efficient1(positions) do
+    grouped_positions = group_and_sort(positions)
+    consumption = distance_from_zero(grouped_positions)
+    number_of_crabs = number_of_crabs(grouped_positions)
+
+    find_most_efficient1(grouped_positions, 0, consumption, 0, number_of_crabs)
+  end
+
+  defp find_most_efficient1(
+         positions,
+         at_position,
+         prev_consumption,
+         below,
+         over
+       ) do
+    {positions, below, over} =
+      case positions do
+        [{^at_position, count} | rest_positions] ->
+          {rest_positions, below + count, over - count}
+
+        _ ->
+          {positions, below, over}
+      end
+
+    case prev_consumption + below - over do
+      consumption when prev_consumption < consumption ->
+        prev_consumption
+
+      consumption ->
+        find_most_efficient1(
+          positions,
+          at_position + 1,
+          consumption,
+          below,
+          over
+        )
+    end
+  end
+
+  defp group_and_sort(positions) do
+    Enum.frequencies(positions)
+    |> Enum.to_list()
+    |> Enum.sort_by(fn {position, _} -> position end)
+  end
+
+  defp distance_from_zero(positions) do
+    Enum.map(positions, fn {position, count} -> count * position end)
+    |> Enum.sum()
+  end
+
+  defp number_of_crabs(positions) do
+    Enum.map(positions, fn {_, count} -> count end)
+    |> Enum.sum()
   end
 
   def solve2(positions) do
-    find_most_efficient(positions, &crab_sub_consumption2/1)
+    find_most_efficient_brute_force(positions, &crab_sub_consumption2/1)
   end
 
-  defp find_most_efficient(
+  defp find_most_efficient_brute_force(
          positions,
          consumption_fun,
          end_position \\ 0,
@@ -109,12 +198,8 @@ defmodule AdventOfCode.Puzzles.Day07 do
     if previous_consumption != nil && consumption > previous_consumption do
       previous_consumption
     else
-      find_most_efficient(positions, consumption_fun, end_position + 1, consumption)
+      find_most_efficient_brute_force(positions, consumption_fun, end_position + 1, consumption)
     end
-  end
-
-  defp crab_sub_consumption1(expected_position) do
-    fn position -> abs(expected_position - position) end
   end
 
   defp crab_sub_consumption2(expected_position) do

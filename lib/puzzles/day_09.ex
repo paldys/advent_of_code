@@ -37,6 +37,58 @@ defmodule AdventOfCode.Puzzles.Day09 do
 
   Find all of the low points on your heightmap. What is the sum of the risk
   levels of all low points on your heightmap?
+
+  --- Part Two ---
+
+  Next, you need to find the largest basins so you know what areas are most
+  important to avoid.
+
+  A basin is all locations that eventually flow downward to a single low point.
+  Therefore, every low point has a basin, although some basins are very small.
+  Locations of height 9 do not count as being in any basin, and all other
+  locations will always be part of exactly one basin.
+
+  The size of a basin is the number of locations within the basin, including
+  the low point. The example above has four basins.
+
+  The top-left basin, size 3:
+
+  2199943210
+  3987894921
+  9856789892
+  8767896789
+  9899965678
+
+  The top-right basin, size 9:
+
+  2199943210
+  3987894921
+  9856789892
+  8767896789
+  9899965678
+
+  The middle basin, size 14:
+
+  2199943210
+  3987894921
+  9856789892
+  8767896789
+  9899965678
+
+  The bottom-right basin, size 9:
+
+  2199943210
+  3987894921
+  9856789892
+  8767896789
+  9899965678
+
+
+  Find the three largest basins and multiply their sizes together. In the above
+  example, this is 9 * 14 * 9 = 1134.
+
+  What do you get if you multiply together the sizes of the three largest basins?
+
   """
   def load() do
     File.read!("resources/day-09-input.txt")
@@ -69,7 +121,40 @@ defmodule AdventOfCode.Puzzles.Day09 do
       (y == cols || heightmap[x][y] < heightmap[x][y + 1])
   end
 
-  def solve2(_) do
-    nil
+  def solve2(heightmap) do
+    rows = Arrays.size(heightmap) - 1
+    cols = Arrays.size(heightmap[0]) - 1
+
+    {_, basins} = Enum.reduce(0..rows, {heightmap, []}, fn x, heightmap_w_basins ->
+      Enum.reduce(0..cols, heightmap_w_basins, fn y, {heightmap, basins} ->
+        {heightmap, basin_size} = fill_basin({heightmap, 0}, {x, y})
+
+        case basin_size do
+          0 -> {heightmap, basins}
+          _ -> {heightmap, [basin_size | basins]}
+        end
+      end)
+    end)
+
+    Enum.sort(basins, &(&1 >= &2))
+    |> Enum.take(3)
+    |> Enum.product()
+  end
+
+  defp fill_basin({heightmap, size}, {x, y}) do
+
+    if x < 0 || x == Arrays.size(heightmap) || y < 0 || y == Arrays.size(heightmap[0])
+      || heightmap[x][y] == 9 || heightmap[x][y] == -1 do
+        {heightmap, size}
+      else
+        fill_basin({arrays_replace(heightmap, {x, y}, -1), size + 1}, {x + 1, y})
+        |> fill_basin({x, y + 1})
+        |> fill_basin({x - 1, y})
+        |> fill_basin({x, y - 1})
+      end
+  end
+
+  defp arrays_replace(md_array, {x, y}, value) do
+    Arrays.replace(md_array, x, Arrays.replace(md_array[x], y, value))
   end
 end

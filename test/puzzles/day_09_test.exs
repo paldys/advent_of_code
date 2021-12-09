@@ -14,6 +14,6 @@ defmodule AdventOfCode.Puzzles.Day09Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day09.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day09.solve2(@test_heightmap) == 1134
   end
 end

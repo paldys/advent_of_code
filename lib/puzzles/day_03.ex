@@ -124,10 +124,10 @@ defmodule AdventOfCode.Puzzles.Day03 do
   is the life support rating of the submarine? (Be sure to represent your
   answer in decimal, not binary.)
   """
+  alias AdventOfCode.Utils.Loader
+
   def load() do
-    File.read!("resources/day-03-input.txt")
-    |> String.split("\n", trim: true)
-    |> Enum.map(&String.to_charlist/1)
+    Loader.load_charlists("resources/day-03-input.txt")
   end
 
   def solve1(codes) do

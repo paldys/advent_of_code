@@ -19,6 +19,6 @@ defmodule AdventOfCode.Puzzles.Day10Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day10.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day10.solve2(@test_chunks) == 288_957
   end
 end

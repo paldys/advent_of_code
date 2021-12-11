@@ -125,16 +125,17 @@ defmodule AdventOfCode.Puzzles.Day09 do
     rows = Arrays.size(heightmap) - 1
     cols = Arrays.size(heightmap[0]) - 1
 
-    {_, basins} = Enum.reduce(0..rows, {heightmap, []}, fn x, heightmap_w_basins ->
-      Enum.reduce(0..cols, heightmap_w_basins, fn y, {heightmap, basins} ->
-        {heightmap, basin_size} = fill_basin({heightmap, 0}, {x, y})
+    {_, basins} =
+      Enum.reduce(0..rows, {heightmap, []}, fn x, heightmap_w_basins ->
+        Enum.reduce(0..cols, heightmap_w_basins, fn y, {heightmap, basins} ->
+          {heightmap, basin_size} = fill_basin({heightmap, 0}, {x, y})
 
-        case basin_size do
-          0 -> {heightmap, basins}
-          _ -> {heightmap, [basin_size | basins]}
-        end
+          case basin_size do
+            0 -> {heightmap, basins}
+            _ -> {heightmap, [basin_size | basins]}
+          end
+        end)
       end)
-    end)
 
     Enum.sort(basins, &(&1 >= &2))
     |> Enum.take(3)
@@ -142,16 +143,16 @@ defmodule AdventOfCode.Puzzles.Day09 do
   end
 
   defp fill_basin({heightmap, size}, {x, y}) do
-
-    if x < 0 || x == Arrays.size(heightmap) || y < 0 || y == Arrays.size(heightmap[0])
-      || heightmap[x][y] == 9 || heightmap[x][y] == -1 do
-        {heightmap, size}
-      else
-        fill_basin({arrays_replace(heightmap, {x, y}, -1), size + 1}, {x + 1, y})
-        |> fill_basin({x, y + 1})
-        |> fill_basin({x - 1, y})
-        |> fill_basin({x, y - 1})
-      end
+    if x < 0 || x == Arrays.size(heightmap) ||
+         y < 0 || y == Arrays.size(heightmap[0]) ||
+         heightmap[x][y] == 9 || heightmap[x][y] == -1 do
+      {heightmap, size}
+    else
+      fill_basin({arrays_replace(heightmap, {x, y}, -1), size + 1}, {x + 1, y})
+      |> fill_basin({x, y + 1})
+      |> fill_basin({x - 1, y})
+      |> fill_basin({x, y - 1})
+    end
   end
 
   defp arrays_replace(md_array, {x, y}, value) do

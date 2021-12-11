@@ -23,6 +23,6 @@ defmodule AdventOfCode.Puzzles.Day11Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day11.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day11.solve2(@test_energy_levels) == 195
   end
 end

@@ -92,15 +92,11 @@ defmodule AdventOfCode.Puzzles.Day09 do
   What do you get if you multiply together the sizes of the three largest basins?
 
   """
+
+  alias AdventOfCode.Utils.Loader
+
   def load() do
-    File.read!("resources/day-09-input.txt")
-    |> String.split("\n", trim: true)
-    |> Enum.map(fn row ->
-      String.codepoints(row)
-      |> Enum.map(&String.to_integer/1)
-      |> Arrays.new()
-    end)
-    |> Arrays.new()
+    Loader.load_integer_matrix("resources/day-09-input.txt")
   end
 
   def solve1(heightmap) do

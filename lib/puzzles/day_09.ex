@@ -1,5 +1,7 @@
 defmodule AdventOfCode.Puzzles.Day09 do
   @moduledoc """
+  --- Day 9: Smoke Basin ---
+
   These caves seem to be lava tubes. Parts are even still volcanically active;
   small hydrothermal vents release smoke into the caves that slowly settles
   like rain.
@@ -90,15 +92,11 @@ defmodule AdventOfCode.Puzzles.Day09 do
   What do you get if you multiply together the sizes of the three largest basins?
 
   """
+
+  alias AdventOfCode.Utils.Loader
+
   def load() do
-    File.read!("resources/day-09-input.txt")
-    |> String.split("\n", trim: true)
-    |> Enum.map(fn row ->
-      String.codepoints(row)
-      |> Enum.map(&String.to_integer/1)
-      |> Arrays.new()
-    end)
-    |> Arrays.new()
+    Loader.load_integer_matrix("resources/day-09-input.txt")
   end
 
   def solve1(heightmap) do
@@ -125,16 +123,17 @@ defmodule AdventOfCode.Puzzles.Day09 do
     rows = Arrays.size(heightmap) - 1
     cols = Arrays.size(heightmap[0]) - 1
 
-    {_, basins} = Enum.reduce(0..rows, {heightmap, []}, fn x, heightmap_w_basins ->
-      Enum.reduce(0..cols, heightmap_w_basins, fn y, {heightmap, basins} ->
-        {heightmap, basin_size} = fill_basin({heightmap, 0}, {x, y})
+    {_, basins} =
+      Enum.reduce(0..rows, {heightmap, []}, fn x, heightmap_w_basins ->
+        Enum.reduce(0..cols, heightmap_w_basins, fn y, {heightmap, basins} ->
+          {heightmap, basin_size} = fill_basin({heightmap, 0}, {x, y})
 
-        case basin_size do
-          0 -> {heightmap, basins}
-          _ -> {heightmap, [basin_size | basins]}
-        end
+          case basin_size do
+            0 -> {heightmap, basins}
+            _ -> {heightmap, [basin_size | basins]}
+          end
+        end)
       end)
-    end)
 
     Enum.sort(basins, &(&1 >= &2))
     |> Enum.take(3)
@@ -142,19 +141,15 @@ defmodule AdventOfCode.Puzzles.Day09 do
   end
 
   defp fill_basin({heightmap, size}, {x, y}) do
-
-    if x < 0 || x == Arrays.size(heightmap) || y < 0 || y == Arrays.size(heightmap[0])
-      || heightmap[x][y] == 9 || heightmap[x][y] == -1 do
-        {heightmap, size}
-      else
-        fill_basin({arrays_replace(heightmap, {x, y}, -1), size + 1}, {x + 1, y})
-        |> fill_basin({x, y + 1})
-        |> fill_basin({x - 1, y})
-        |> fill_basin({x, y - 1})
-      end
-  end
-
-  defp arrays_replace(md_array, {x, y}, value) do
-    Arrays.replace(md_array, x, Arrays.replace(md_array[x], y, value))
+    if x < 0 || x == Arrays.size(heightmap) ||
+         y < 0 || y == Arrays.size(heightmap[0]) ||
+         heightmap[x][y] == 9 || heightmap[x][y] == -1 do
+      {heightmap, size}
+    else
+      fill_basin({put_in(heightmap[x][y], -1), size + 1}, {x + 1, y})
+      |> fill_basin({x, y + 1})
+      |> fill_basin({x - 1, y})
+      |> fill_basin({x, y - 1})
+    end
   end
 end

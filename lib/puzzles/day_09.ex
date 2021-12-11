@@ -150,14 +150,10 @@ defmodule AdventOfCode.Puzzles.Day09 do
          heightmap[x][y] == 9 || heightmap[x][y] == -1 do
       {heightmap, size}
     else
-      fill_basin({arrays_replace(heightmap, {x, y}, -1), size + 1}, {x + 1, y})
+      fill_basin({put_in(heightmap[x][y], -1), size + 1}, {x + 1, y})
       |> fill_basin({x, y + 1})
       |> fill_basin({x - 1, y})
       |> fill_basin({x, y - 1})
     end
-  end
-
-  defp arrays_replace(md_array, {x, y}, value) do
-    Arrays.replace(md_array, x, Arrays.replace(md_array[x], y, value))
   end
 end

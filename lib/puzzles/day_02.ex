@@ -1,5 +1,7 @@
 defmodule AdventOfCode.Puzzles.Day02 do
   @moduledoc """
+  --- Day 2: Dive! ---
+
   It seems like the submarine can take a series of commands like forward 1,
   down 2, or up 3:
 

@@ -57,7 +57,15 @@ defmodule AdventOfCode.Puzzles.Day12Test do
     assert AdventOfCode.Puzzles.Day12.solve1(@test_lines_large) == 226
   end
 
-  test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day12.solve2(nil) == nil
+  test "solve 2nd puzzle for small" do
+    assert AdventOfCode.Puzzles.Day12.solve2(@test_lines_small) == 36
+  end
+
+  test "solve 2nd puzzle for medium" do
+    assert AdventOfCode.Puzzles.Day12.solve2(@test_lines_medium) == 103
+  end
+
+  test "solve 2nd puzzle for large" do
+    assert AdventOfCode.Puzzles.Day12.solve2(@test_lines_large) == 3509
   end
 end

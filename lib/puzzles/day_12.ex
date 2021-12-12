@@ -119,6 +119,60 @@ defmodule AdventOfCode.Puzzles.Day12 do
   How many paths through this cave system are there that visit small caves
   at most once?
 
+  --- Part Two ---
+
+  After reviewing the available paths, you realize you might have time to visit
+  a single small cave twice. Specifically, big caves can be visited any number
+  of times, a single small cave can be visited at most twice, and the remaining
+  small caves can be visited at most once. However, the caves named start and
+  end can only be visited exactly once each: once you leave the start cave,
+  you may not return to it, and once you reach the end cave, the path must
+  end immediately.
+
+  Now, the 36 possible paths through the first example above are:
+
+  start,A,b,A,b,A,c,A,end
+  start,A,b,A,b,A,end
+  start,A,b,A,b,end
+  start,A,b,A,c,A,b,A,end
+  start,A,b,A,c,A,b,end
+  start,A,b,A,c,A,c,A,end
+  start,A,b,A,c,A,end
+  start,A,b,A,end
+  start,A,b,d,b,A,c,A,end
+  start,A,b,d,b,A,end
+  start,A,b,d,b,end
+  start,A,b,end
+  start,A,c,A,b,A,b,A,end
+  start,A,c,A,b,A,b,end
+  start,A,c,A,b,A,c,A,end
+  start,A,c,A,b,A,end
+  start,A,c,A,b,d,b,A,end
+  start,A,c,A,b,d,b,end
+  start,A,c,A,b,end
+  start,A,c,A,c,A,b,A,end
+  start,A,c,A,c,A,b,end
+  start,A,c,A,c,A,end
+  start,A,c,A,end
+  start,A,end
+  start,b,A,b,A,c,A,end
+  start,b,A,b,A,end
+  start,b,A,b,end
+  start,b,A,c,A,b,A,end
+  start,b,A,c,A,b,end
+  start,b,A,c,A,c,A,end
+  start,b,A,c,A,end
+  start,b,A,end
+  start,b,d,b,A,c,A,end
+  start,b,d,b,A,end
+  start,b,d,b,end
+  start,b,end
+
+  The slightly larger example above now has 103 paths through it, and the even
+  larger example now has 3509 paths through it.
+
+  Given these new rules, how many paths through this cave system are there?
+
   """
   def load() do
     File.read!("resources/day-12-input.txt")
@@ -132,14 +186,20 @@ defmodule AdventOfCode.Puzzles.Day12 do
   def solve1(lines) do
     {map, large_caves} = init_map(lines)
 
-    find_all_paths(map, large_caves, :start)
+    find_all_paths1(map, large_caves)
   end
 
-  def solve2(_) do
-    nil
+  def solve2(lines) do
+    {map, large_caves} = init_map(lines)
+
+    find_all_paths2(map, large_caves)
   end
 
-  defp find_all_paths(map, large_caves, current_cave, visited_caves \\ MapSet.new()) do
+  defp find_all_paths1(map, large_caves, current_cave \\ :start, visited_caves \\ MapSet.new())
+
+  defp find_all_paths1(_, _, :end, _), do: 1
+
+  defp find_all_paths1(map, large_caves, current_cave, visited_caves) do
     updated_visited_caves =
       if MapSet.member?(large_caves, current_cave) do
         visited_caves
@@ -150,10 +210,30 @@ defmodule AdventOfCode.Puzzles.Day12 do
     Map.get(map, current_cave, [])
     |> Enum.filter(fn next_cave -> !MapSet.member?(visited_caves, next_cave) end)
     |> Enum.map(fn next_cave ->
-      case next_cave do
-        :end -> 1
-        _ -> find_all_paths(map, large_caves, next_cave, updated_visited_caves)
+      find_all_paths1(map, large_caves, next_cave, updated_visited_caves)
+    end)
+    |> Enum.sum()
+  end
+
+  defp find_all_paths2(map, large_caves, current_cave \\ :start, visited_caves \\ MapSet.new(), small_cave_pass \\ true)
+
+  defp find_all_paths2(_, _, :end, _, _), do: 1
+
+  defp find_all_paths2(map, large_caves, current_cave, visited_caves, small_cave_pass) do
+    {updated_visited_caves, updated_small_cave_pass} =
+      cond do
+        MapSet.member?(large_caves, current_cave) -> {visited_caves, small_cave_pass}
+
+        small_cave_pass && MapSet.member?(visited_caves, current_cave) -> {visited_caves, false}
+        true -> {MapSet.put(visited_caves, current_cave), small_cave_pass}
       end
+
+    Map.get(map, current_cave, [])
+    |> Enum.filter(fn next_cave ->
+      !MapSet.member?(visited_caves, next_cave) || (updated_small_cave_pass && next_cave != :start)
+    end)
+    |> Enum.map(fn next_cave ->
+      find_all_paths2(map, large_caves, next_cave, updated_visited_caves, updated_small_cave_pass)
     end)
     |> Enum.sum()
   end

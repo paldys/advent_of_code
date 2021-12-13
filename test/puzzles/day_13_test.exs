@@ -32,6 +32,12 @@ defmodule AdventOfCode.Puzzles.Day13Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day13.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day13.solve2({@test_dots, @test_instructions}) == """
+           #####
+           #...#
+           #...#
+           #...#
+           #####\
+           """
   end
 end

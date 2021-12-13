@@ -138,6 +138,13 @@ defmodule AdventOfCode.Puzzles.Day13 do
   How many dots are visible after completing just the first fold instruction
   on your transparent paper?
 
+  --- Part Two ---
+
+  Finish folding the transparent paper according to the instructions. The manual
+  says the code is always eight capital letters.
+
+  What code do you use to activate the infrared thermal imaging camera system?
+
   """
   def load() do
     {raw_dots, raw_instructions} =
@@ -170,8 +177,11 @@ defmodule AdventOfCode.Puzzles.Day13 do
     |> MapSet.size()
   end
 
-  def solve2(_) do
-    nil
+  def solve2({dots, instructions}) do
+    dots = MapSet.new(dots)
+
+    Enum.reduce(instructions, dots, &fold/2)
+    |> dots_to_str()
   end
 
   defp fold({:horizontal, amount}, dots) do
@@ -192,5 +202,22 @@ defmodule AdventOfCode.Puzzles.Day13 do
         MapSet.put(dots, {x, y})
       end
     end)
+  end
+
+  defp dots_to_str(dots) do
+    {lines, _, _} =
+      Enum.reduce(MapSet.to_list(dots), {['.'], 0, 0}, fn {x, y}, {lines, w, h} ->
+        {updated_lines, updated_w, updated_h} =
+          cond do
+            x > w -> {Enum.map(lines, fn line -> line ++ List.duplicate(?., x - w) end), x, h}
+            y > h -> {lines ++ List.duplicate(List.duplicate(?., w + 1), y - h), w, y}
+            true -> {lines, w, h}
+          end
+
+        {List.update_at(updated_lines, y, &List.replace_at(&1, x, ?#)), updated_w, updated_h}
+      end)
+
+    Enum.map(lines, &to_string/1)
+    |> Enum.reduce(fn line, ret -> "#{ret}\n#{line}" end)
   end
 end

@@ -215,7 +215,13 @@ defmodule AdventOfCode.Puzzles.Day12 do
     |> Enum.sum()
   end
 
-  defp find_all_paths2(map, large_caves, current_cave \\ :start, visited_caves \\ MapSet.new(), small_cave_pass \\ true)
+  defp find_all_paths2(
+         map,
+         large_caves,
+         current_cave \\ :start,
+         visited_caves \\ MapSet.new(),
+         small_cave_pass \\ true
+       )
 
   defp find_all_paths2(_, _, :end, _, _), do: 1
 
@@ -223,14 +229,14 @@ defmodule AdventOfCode.Puzzles.Day12 do
     {updated_visited_caves, updated_small_cave_pass} =
       cond do
         MapSet.member?(large_caves, current_cave) -> {visited_caves, small_cave_pass}
-
         small_cave_pass && MapSet.member?(visited_caves, current_cave) -> {visited_caves, false}
         true -> {MapSet.put(visited_caves, current_cave), small_cave_pass}
       end
 
     Map.get(map, current_cave, [])
     |> Enum.filter(fn next_cave ->
-      !MapSet.member?(visited_caves, next_cave) || (updated_small_cave_pass && next_cave != :start)
+      !MapSet.member?(visited_caves, next_cave) ||
+        (updated_small_cave_pass && next_cave != :start)
     end)
     |> Enum.map(fn next_cave ->
       find_all_paths2(map, large_caves, next_cave, updated_visited_caves, updated_small_cave_pass)
@@ -260,7 +266,7 @@ defmodule AdventOfCode.Puzzles.Day12 do
   end
 
   defp add_new_path_to_map(map, a, b) do
-    Map.update(map, a, [b], &([b | &1]))
+    Map.update(map, a, [b], &[b | &1])
   end
 
   defp add_large_cave(large_caves, cave) do

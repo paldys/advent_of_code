@@ -76,6 +76,21 @@ defmodule AdventOfCode.Puzzles.Day14 do
   least common elements in the result. What do you get if you take the quantity
   of the most common element and subtract the quantity
   of the least common element?
+
+  --- Part Two ---
+
+  The resulting polymer isn't nearly strong enough to reinforce the submarine.
+  You'll need to run more steps of the pair insertion process; a total of 40
+  steps should do it.
+
+  In the above example, the most common element is B (occurring 2192039569602
+  times) and the least common element is H (occurring 3849876073 times);
+  subtracting these produces 2188189693529.
+
+  Apply 40 steps of pair insertion to the polymer template and find the most and
+  least common elements in the result. What do you get if you take the quantity
+  of the most common element and subtract the quantity of the least common
+  element?
   """
   def load() do
     [template_str | raw_rules] =
@@ -118,8 +133,8 @@ defmodule AdventOfCode.Puzzles.Day14 do
     div(most_common - least_common + 1, 2)
   end
 
-  def solve2(_) do
-    nil
+  def solve2(template_and_rules) do
+    solve1(template_and_rules, 40)
   end
 
   defp apply_insertions(template_pairs, _, 0), do: template_pairs

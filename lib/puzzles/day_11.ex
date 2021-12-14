@@ -417,9 +417,18 @@ defmodule AdventOfCode.Puzzles.Day11 do
 
   defp simulate_step(energy_levels, [{x, y} | energy_to_increase], flashes) do
     case energy_levels[x][y] do
-      10 -> simulate_step(energy_levels, energy_to_increase, flashes)
-      9 -> simulate_step(put_in(energy_levels[x][y], 10), all_adjacent({x, y}, energy_levels) ++ energy_to_increase, [{x, y} | flashes])
-      _ -> simulate_step(update_in(energy_levels[x][y], (&(&1 + 1))), energy_to_increase, flashes)
+      10 ->
+        simulate_step(energy_levels, energy_to_increase, flashes)
+
+      9 ->
+        simulate_step(
+          put_in(energy_levels[x][y], 10),
+          all_adjacent({x, y}, energy_levels) ++ energy_to_increase,
+          [{x, y} | flashes]
+        )
+
+      _ ->
+        simulate_step(update_in(energy_levels[x][y], &(&1 + 1)), energy_to_increase, flashes)
     end
   end
 

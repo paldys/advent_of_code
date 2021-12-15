@@ -26,6 +26,6 @@ defmodule AdventOfCode.Puzzles.Day14Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day14.solve2({@test_template, @test_rules}) == 2188189693529
+    assert AdventOfCode.Puzzles.Day14.solve2({@test_template, @test_rules}) == 2_188_189_693_529
   end
 end

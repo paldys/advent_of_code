@@ -65,8 +65,26 @@ defmodule AdventOfCode.Puzzles.Day15 do
     find_safest_path(risk_levels)
   end
 
-  def solve2(_) do
-    nil
+  def solve2(risk_levels) do
+    duplicated_to_right =
+      Enum.map(risk_levels, fn risk_levels_line ->
+        Enum.flat_map(0..4, fn i ->
+          Enum.map(risk_levels_line, fn risk ->
+            rem(risk - 1 + i, 9) + 1
+          end)
+        end)
+      end)
+
+    duplicated_to_bottom =
+      Enum.flat_map(0..4, fn i ->
+        Enum.map(duplicated_to_right, fn risk_levels_line ->
+          Enum.map(risk_levels_line, fn risk ->
+            rem(risk - 1 + i, 9) + 1
+          end)
+        end)
+      end)
+
+    find_safest_path(duplicated_to_bottom)
   end
 
   defp find_safest_path(

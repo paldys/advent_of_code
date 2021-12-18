@@ -78,11 +78,8 @@ defmodule AdventOfCode.Puzzles.Day04 do
   Figure out which board will win last. Once it wins, what would its final
   score be?
   """
-
-  def load() do
-    [draw_row | board_input] =
-      File.read!("resources/day-04-input.txt")
-      |> String.split("\n", trim: true)
+  def parse(input) do
+    [draw_row | board_input] = String.split(input, "\n", trim: true)
 
     draws =
       String.split(draw_row, ",", trim: true)

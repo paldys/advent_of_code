@@ -93,10 +93,10 @@ defmodule AdventOfCode.Puzzles.Day09 do
 
   """
 
-  alias AdventOfCode.Utils.Loader
+  alias AdventOfCode.Utils.InputParser
 
-  def load() do
-    Loader.load_integer_matrix("resources/day-09-input.txt")
+  def parse(input) do
+    InputParser.parse_integer_matrix(input)
   end
 
   def solve1(heightmap) do

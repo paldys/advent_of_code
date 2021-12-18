@@ -92,10 +92,8 @@ defmodule AdventOfCode.Puzzles.Day14 do
   of the most common element and subtract the quantity of the least common
   element?
   """
-  def load() do
-    [template_str | raw_rules] =
-      File.read!("resources/day-14-input.txt")
-      |> String.split("\n", trim: true)
+  def parse(input) do
+    [template_str | raw_rules] = String.split(input, "\n", trim: true)
 
     template = String.to_charlist(template_str)
 

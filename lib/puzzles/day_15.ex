@@ -51,10 +51,8 @@ defmodule AdventOfCode.Puzzles.Day15 do
   right?
 
   """
-
-  def load() do
-    File.read!("resources/day-15-input.txt")
-    |> String.split("\n", trim: true)
+  def parse(input) do
+    String.split(input, "\n", trim: true)
     |> Enum.map(fn row ->
       String.codepoints(row)
       |> Enum.map(&String.to_integer/1)

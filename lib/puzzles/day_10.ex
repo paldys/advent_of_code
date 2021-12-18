@@ -140,7 +140,7 @@ defmodule AdventOfCode.Puzzles.Day10 do
 
   """
 
-  alias AdventOfCode.Utils.Loader
+  alias AdventOfCode.Utils.InputParser
 
   @illegal_char_points %{
     ?) => 3,
@@ -163,8 +163,8 @@ defmodule AdventOfCode.Puzzles.Day10 do
     ?< => ?>
   }
 
-  def load() do
-    Loader.load_charlists("resources/day-10-input.txt")
+  def parse(input) do
+    InputParser.parse_charlists(input)
   end
 
   def solve1(chunks) do

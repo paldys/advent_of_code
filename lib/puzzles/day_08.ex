@@ -183,9 +183,8 @@ defmodule AdventOfCode.Puzzles.Day08 do
                     @signal_eight_length
                   ])
 
-  def load() do
-    File.read!("resources/day-08-input.txt")
-    |> String.split("\n", trim: true)
+  def parse(input) do
+    String.split(input, "\n", trim: true)
     |> Enum.map(fn row ->
       String.split(row, "|", trim: true)
       |> Enum.map(fn signals ->

@@ -113,9 +113,8 @@ defmodule AdventOfCode.Puzzles.Day01 do
   Consider sums of a three-measurement sliding window. How many sums are
   larger than the previous sum?
   """
-  def load() do
-    File.read!("resources/day-01-input.txt")
-    |> String.split("\n", trim: true)
+  def parse(input) do
+    String.split(input, "\n", trim: true)
     |> Enum.map(&String.to_integer/1)
   end
 

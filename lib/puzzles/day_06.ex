@@ -85,10 +85,10 @@ defmodule AdventOfCode.Puzzles.Day06 do
   lanternfish!
   """
 
-  alias AdventOfCode.Utils.Loader
+  alias AdventOfCode.Utils.InputParser
 
-  def load() do
-    Loader.load_comma_separated_numbers("resources/day-06-input.txt")
+  def parse(input) do
+    InputParser.parse_comma_separated_numbers(input)
   end
 
   def solve1(timers, days \\ 80) do

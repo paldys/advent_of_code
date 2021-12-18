@@ -146,10 +146,9 @@ defmodule AdventOfCode.Puzzles.Day13 do
   What code do you use to activate the infrared thermal imaging camera system?
 
   """
-  def load() do
+  def parse(input) do
     {raw_dots, raw_instructions} =
-      File.read!("resources/day-13-input.txt")
-      |> String.split("\n", trim: true)
+      String.split(input, "\n", trim: true)
       |> Enum.split_while(fn line -> !String.starts_with?(line, "fold") end)
 
     dots =

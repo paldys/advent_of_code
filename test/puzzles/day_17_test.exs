@@ -8,6 +8,6 @@ defmodule AdventOfCode.Puzzles.Day17Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day17.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day17.solve2(@test_target_area) == 112
   end
 end

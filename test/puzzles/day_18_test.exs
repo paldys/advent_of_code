@@ -71,6 +71,6 @@ defmodule AdventOfCode.Puzzles.Day18Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day18.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day18.solve2(@test_snailfish_numbers) == 3993
   end
 end

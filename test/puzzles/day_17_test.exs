@@ -3,6 +3,11 @@ defmodule AdventOfCode.Puzzles.Day17Test do
 
   @test_target_area {{20, 30}, {-10, -5}}
 
+  test "parse input" do
+    assert AdventOfCode.Puzzles.Day17.parse("target area: x=20..30, y=-10..-5\n") ==
+             {{20, 30}, {-10, -5}}
+  end
+
   test "solve 1st puzzle" do
     assert AdventOfCode.Puzzles.Day17.solve1(@test_target_area) == 45
   end

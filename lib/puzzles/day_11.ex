@@ -370,10 +370,10 @@ defmodule AdventOfCode.Puzzles.Day11 do
   the first step during which all octopuses flash?
   """
 
-  alias AdventOfCode.Utils.Loader
+  alias AdventOfCode.Utils.InputParser
 
-  def load() do
-    Loader.load_integer_matrix("resources/day-11-input.txt")
+  def parse(input) do
+    InputParser.parse_integer_matrix(input)
   end
 
   def solve1(energy_levels, steps \\ 100, flashes \\ 0, index_cache \\ nil)

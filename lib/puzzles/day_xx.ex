@@ -2,7 +2,7 @@ defmodule AdventOfCode.Puzzles.DayXX do
   @moduledoc """
   Template to use for puzzles
   """
-  def load() do
+  def parse(_) do
     nil
   end
 

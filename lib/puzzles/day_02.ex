@@ -77,10 +77,9 @@ defmodule AdventOfCode.Puzzles.Day02 do
   position and depth you would have after following the planned course. What do
   you get if you multiply your final horizontal position by your final depth?
   """
-  @spec load() :: [{:forward | :down | :up, integer()}]
-  def load() do
-    File.read!("resources/day-02-input.txt")
-    |> String.split("\n", trim: true)
+  @spec parse(String.t()) :: [{:forward | :down | :up, integer()}]
+  def parse(input) do
+    String.split(input, "\n", trim: true)
     |> Enum.map(fn row -> String.split(row, " ") end)
     |> Enum.map(fn [command_str, units_str] ->
       {String.to_existing_atom(command_str), String.to_integer(units_str)}

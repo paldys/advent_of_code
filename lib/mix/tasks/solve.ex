@@ -3,10 +3,12 @@ defmodule Mix.Tasks.Solve do
 
   @shortdoc "Solve the puzzle"
   def run([day, puzzle]) do
-    puzzle_solver_module = puzzle_solver_module(day)
+    padded_day = String.pad_leading(day, 2, "0")
+    puzzle_solver_module = puzzle_solver_module(padded_day)
     Code.ensure_loaded!(puzzle_solver_module)
 
-    puzzle_input = apply(puzzle_solver_module, :load, [])
+    puzzle_raw_input = File.read!(puzzle_input_file(padded_day))
+    puzzle_input = apply(puzzle_solver_module, :parse, [puzzle_raw_input])
 
     puzzle_to_solve = if puzzle == "1", do: :solve1, else: :solve2
 
@@ -16,7 +18,11 @@ defmodule Mix.Tasks.Solve do
     IO.puts(output)
   end
 
-  defp puzzle_solver_module(day) do
-    String.to_existing_atom("Elixir.AdventOfCode.Puzzles.Day#{String.pad_leading(day, 2, "0")}")
+  defp puzzle_solver_module(padded_day) do
+    String.to_existing_atom("Elixir.AdventOfCode.Puzzles.Day#{padded_day}")
+  end
+
+  defp puzzle_input_file(padded_day) do
+    "resources/day-#{padded_day}-input.txt"
   end
 end

@@ -213,9 +213,8 @@ defmodule AdventOfCode.Puzzles.Day16 do
     7 => :equal_to
   }
 
-  def load() do
-    File.read!("resources/day-16-input.txt")
-    |> String.trim()
+  def parse(input) do
+    String.trim(input)
   end
 
   def solve1(transmission) do

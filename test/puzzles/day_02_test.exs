@@ -1,6 +1,15 @@
 defmodule AdventOfCode.Puzzles.Day02Test do
   use ExUnit.Case
 
+  @test_input """
+  forward 5
+  down 5
+  forward 8
+  up 3
+  down 8
+  forward 2
+  """
+
   @test_commands [
     {:forward, 5},
     {:down, 5},
@@ -9,6 +18,10 @@ defmodule AdventOfCode.Puzzles.Day02Test do
     {:down, 8},
     {:forward, 2}
   ]
+
+  test "parse input" do
+    assert AdventOfCode.Puzzles.Day02.parse(@test_input) == @test_commands
+  end
 
   test "solve 1st puzzle" do
     assert AdventOfCode.Puzzles.Day02.solve1(@test_commands) == 150

@@ -1,6 +1,16 @@
 defmodule AdventOfCode.Puzzles.Day12Test do
   use ExUnit.Case
 
+  @test_input """
+  start-A
+  start-b
+  A-c
+  A-b
+  b-d
+  A-end
+  b-end
+  """
+
   @test_lines_small [
     {"start", "A"},
     {"start", "b"},
@@ -44,6 +54,10 @@ defmodule AdventOfCode.Puzzles.Day12Test do
     {"pj", "fs"},
     {"start", "RW"}
   ]
+
+  test "parse input" do
+    assert AdventOfCode.Puzzles.Day12.parse(@test_input) == @test_lines_small
+  end
 
   test "solve 1st puzzle for small" do
     assert AdventOfCode.Puzzles.Day12.solve1(@test_lines_small) == 10

@@ -174,9 +174,8 @@ defmodule AdventOfCode.Puzzles.Day12 do
   Given these new rules, how many paths through this cave system are there?
 
   """
-  def load() do
-    File.read!("resources/day-12-input.txt")
-    |> String.split("\n", trim: true)
+  def parse(input) do
+    String.split(input, "\n", trim: true)
     |> Enum.map(fn row ->
       String.split(row, "-")
       |> List.to_tuple()

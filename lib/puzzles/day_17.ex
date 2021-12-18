@@ -166,18 +166,14 @@ defmodule AdventOfCode.Puzzles.Day17 do
   the target area after any step?
   """
 
-  def load() do
-    raw_input =
-      File.read!("resources/day-17-input.txt")
-      |> String.trim()
-
-    [_ | raw_ranges] =
+  def parse(input) do
+    [min_x, max_x, min_y, max_y] =
       Regex.run(
         ~r/^target area\: x=(-?[[:digit:]]+)\.\.(-?[[:digit:]]+), y=(-?[[:digit:]]+)\.\.(-?[[:digit:]]+)$/,
-        raw_input
+        String.trim(input),
+        capture: :all_but_first
       )
-
-    [min_x, max_x, min_y, max_y] = Enum.map(raw_ranges, &String.to_integer/1)
+      |> Enum.map(&String.to_integer/1)
 
     {{min_x, max_x}, {min_y, max_y}}
   end

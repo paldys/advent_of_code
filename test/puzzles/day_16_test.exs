@@ -1,6 +1,10 @@
 defmodule AdventOfCode.Puzzles.Day16Test do
   use ExUnit.Case
 
+  test "parse input" do
+    assert AdventOfCode.Puzzles.Day16.parse("D2FE28\n") == "D2FE28"
+  end
+
   test "decode literal" do
     {decoded_packet, _} = AdventOfCode.Puzzles.Day16.decode_packet(Base.decode16!("D2FE28"))
     assert decoded_packet == {:literal, 6, 2021}

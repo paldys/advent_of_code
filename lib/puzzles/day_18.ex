@@ -265,97 +265,104 @@ defmodule AdventOfCode.Puzzles.Day18 do
   end
 
   def add_snailfish_numbers(numbers) do
-    Enum.map(numbers, &to_flat_number/1)
-    |> Enum.reduce(fn number, sum ->
-      reduce_number(raise_levels(sum) ++ raise_levels(number))
+    Enum.reduce(numbers, fn number, sum ->
+      reduce_number([sum, number])
     end)
-    |> to_deep_number()
   end
 
   defp to_magnitude([left, right]), do: 3 * to_magnitude(left) + 2 * to_magnitude(right)
   defp to_magnitude(value), do: value
 
-  defp raise_levels(flat_number) do
-    Enum.map(flat_number, fn {level, value} -> {level + 1, value} end)
-  end
-
-  defp to_flat_number(number, level \\ 0)
-
-  defp to_flat_number([left, right], level) do
-    to_flat_number(left, level + 1) ++ to_flat_number(right, level + 1)
-  end
-
-  defp to_flat_number(number, level) do
-    [{level, number}]
-  end
-
-  defp to_deep_number(number, current_level \\ 0)
-
-  defp to_deep_number(number, 0) do
-    {left_right, []} = to_deep_number(number, 1)
-
-    left_right
-  end
-
-  defp to_deep_number(number, level) do
-    {left, rest} =
-      case number do
-        [{^level, value} | rest] -> {value, rest}
-        _ -> to_deep_number(number, level + 1)
-      end
-
-    {right, rest} =
-      case rest do
-        [{^level, value} | rest] -> {value, rest}
-        _ -> to_deep_number(rest, level + 1)
-      end
-
-    {[left, right], rest}
-  end
-
-  defp reduce_number(flat_number) do
-    case explode_number(flat_number) do
+  defp reduce_number(deep_number) do
+    case explode_number(deep_number) do
       {:no_explosion} ->
-        case split_number(flat_number) do
-          {:no_split} -> flat_number
-          {:split, flat_number} -> reduce_number(flat_number)
+        case split_number(deep_number) do
+          {:no_split} -> deep_number
+          {:split, deep_number} -> reduce_number(deep_number)
         end
 
-      {:explosion, flat_number} ->
-        reduce_number(flat_number)
+      {:explosion, deep_number} ->
+        reduce_number(deep_number)
     end
   end
 
-  defp explode_number(flat_number, stack \\ []) do
-    case flat_number do
-      [] ->
-        {:no_explosion}
+  defp explode_number(value, depth \\ 0)
 
-      [{5, explode_left} | [{5, explode_right} | tail]] ->
-        stack = List.update_at(stack, 0, fn {level, value} -> {level, value + explode_left} end)
-        tail = List.update_at(tail, 0, fn {level, value} -> {level, value + explode_right} end)
-        {:explosion, merge_in_stack(stack, [{4, 0} | tail])}
-
-      [leveled_number | tail] ->
-        explode_number(tail, [leveled_number | stack])
+  defp explode_number(root, 0) do
+    case explode_number(root, 1) do
+      {:no_explosion} -> {:no_explosion}
+      {_, root} -> {:explosion, root}
+      {_, root, _} -> {:explosion, root}
     end
   end
 
-  defp split_number(flat_number, stack \\ []) do
-    case flat_number do
-      [] ->
-        {:no_split}
+  defp explode_number([left, right], 5), do: {:to_explode, 0, [left, right]}
 
-      [{level, value} | tail] when value > 9 ->
-        split_left = {level + 1, div(value, 2)}
-        split_right = {level + 1, div(value, 2) + rem(value, 2)}
-        {:split, merge_in_stack(stack, [split_left | [split_right | tail]])}
+  defp explode_number([left, right], depth) do
+    case explode_number(left, depth + 1) do
+      {:exploded, left} ->
+        {:exploded, [left, right]}
 
-      [leveled_number | tail] ->
-        split_number(tail, [leveled_number | stack])
+      {:to_explode, left, [ex_left, ex_right]} ->
+        {:to_explode_left, [left, explode_left_most(right, ex_right)], [ex_left]}
+
+      {:to_explode_left, left, [ex_left]} ->
+        {:to_explode_left, [left, right], [ex_left]}
+
+      {:to_explode_right, left, [ex_right]} ->
+        {:exploded, [left, explode_left_most(right, ex_right)]}
+
+      {:no_explosion} ->
+        case explode_number(right, depth + 1) do
+          {:exploded, right} ->
+            {:exploded, [left, right]}
+
+          {:to_explode, right, [ex_left, ex_right]} ->
+            {:to_explode_right, [explode_right_most(left, ex_left), right], [ex_right]}
+
+          {:to_explode_left, right, [ex_left]} ->
+            {:exploded, [explode_right_most(left, ex_left), right]}
+
+          {:to_explode_right, right, [ex_right]} ->
+            {:to_explode_right, [left, right], [ex_right]}
+
+          {:no_explosion} ->
+            {:no_explosion}
+        end
     end
   end
 
-  defp merge_in_stack([], ret), do: ret
-  defp merge_in_stack([head | tail], ret), do: merge_in_stack(tail, [head | ret])
+  defp explode_number(_, _), do: {:no_explosion}
+
+  defp explode_left_most(value, ex_right) do
+    case value do
+      [left, right] -> [explode_left_most(left, ex_right), right]
+      _ -> value + ex_right
+    end
+  end
+
+  defp explode_right_most(value, ex_left) do
+    case value do
+      [left, right] -> [left, explode_right_most(right, ex_left)]
+      _ -> value + ex_left
+    end
+  end
+
+  defp split_number([left, right]) do
+    case split_number(left) do
+      {:split, left} ->
+        {:split, [left, right]}
+
+      {:no_split} ->
+        case split_number(right) do
+          {:split, right} -> {:split, [left, right]}
+          {:no_split} -> {:no_split}
+        end
+    end
+  end
+
+  defp split_number(value) when value > 9,
+    do: {:split, [div(value, 2), div(value, 2) + rem(value, 2)]}
+
+  defp split_number(_), do: {:no_split}
 end

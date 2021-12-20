@@ -406,6 +406,17 @@ defmodule AdventOfCode.Puzzles.Day19 do
   In total, there are 79 beacons.
 
   Assemble the full map of beacons. How many beacons are there?
+
+  --- Part Two ---
+
+  Sometimes, it's a good idea to appreciate just how big the ocean is. Using
+  the Manhattan distance, how far apart do the scanners get?
+
+  In the above example, scanners 2 (1105,-1205,1229) and 3 (-92,-2380,-20) are
+  the largest Manhattan distance apart. In total, they are
+  1197 + 1175 + 1249 = 3621 units apart.
+
+  What is the largest Manhattan distance between any two scanners?
   """
   @confidence_score 11
 
@@ -430,13 +441,18 @@ defmodule AdventOfCode.Puzzles.Day19 do
   def solve1(scanner_reports) do
     [base_scanner | other_reports] = Enum.map(scanner_reports, &prepare_report/1)
 
-    {beacons, _, _} = normalize_to_base(base_scanner, other_reports)
+    {beacons, _, _, _} = normalize_to_base(Tuple.append(base_scanner, [[0, 0, 0]]), other_reports)
 
     length(beacons)
   end
 
-  def solve2(_) do
-    nil
+  def solve2(scanner_reports) do
+    [base_scanner | other_reports] = Enum.map(scanner_reports, &prepare_report/1)
+
+    {_, _, _, scanners} =
+      normalize_to_base(Tuple.append(base_scanner, [[0, 0, 0]]), other_reports)
+
+    find_largest_manhattan_distance(scanners)
   end
 
   def prepare_report(report) do
@@ -486,7 +502,7 @@ defmodule AdventOfCode.Puzzles.Day19 do
     Map.update(graph, b1, MapSet.new([d]), fn ds -> MapSet.put(ds, d) end)
   end
 
-  defp find_largest_overlap({_, base_distances, _}, other_scanners) do
+  defp find_largest_overlap({_, base_distances, _, _}, other_scanners) do
     largest_overlap =
       Enum.max_by(other_scanners, fn {_, distances, _} ->
         MapSet.intersection(base_distances, distances)
@@ -496,7 +512,7 @@ defmodule AdventOfCode.Puzzles.Day19 do
     {largest_overlap, List.delete(other_scanners, largest_overlap)}
   end
 
-  defp find_best_matching_beacons({_, _, beacons1}, {_, _, beacons2}) do
+  defp find_best_matching_beacons({_, _, beacons1, _}, {_, _, beacons2}) do
     Map.to_list(beacons1)
     |> Enum.flat_map(fn {b1, dv1} ->
       best_match =
@@ -569,7 +585,7 @@ defmodule AdventOfCode.Puzzles.Day19 do
   end
 
   defp merge_into_base(
-         {base_report, base_distances, base_graph},
+         {base_report, base_distances, base_graph, other_scanners},
          {other_report, other_distances, other_graph},
          transform_fn
        ) do
@@ -588,7 +604,11 @@ defmodule AdventOfCode.Puzzles.Day19 do
         end)
       end)
 
-    {updated_report, updated_distances, updated_graph}
+    other_scanner = Enum.map(transform_fn, &elem(&1, 2))
+
+    updated_scanners = [other_scanner | other_scanners]
+
+    {updated_report, updated_distances, updated_graph, updated_scanners}
   end
 
   defp normalize_to_base(base_scanner, []) do
@@ -611,5 +631,19 @@ defmodule AdventOfCode.Puzzles.Day19 do
     base_scanner = merge_into_base(base_scanner, most_overlapping_scanner, transform_fn)
 
     normalize_to_base(base_scanner, other_scanners)
+  end
+
+  defp find_largest_manhattan_distance(scanners, max \\ 0)
+
+  defp find_largest_manhattan_distance([_], max), do: max
+
+  defp find_largest_manhattan_distance([head_scanner | scanners], max) do
+    max_distance =
+      Enum.map(scanners, fn scanner ->
+        Enum.zip_reduce(head_scanner, scanner, 0, fn x, y, sum -> abs(x - y) + sum end)
+      end)
+      |> Enum.max()
+
+    find_largest_manhattan_distance(scanners, max(max, max_distance))
   end
 end

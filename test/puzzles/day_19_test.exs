@@ -21,14 +21,15 @@ defmodule AdventOfCode.Puzzles.Day19Test do
   end
 
   test "solve 1st puzzle" do
-    test_report =
-      File.read!("resources/day-19-test-input.txt")
-      |> AdventOfCode.Puzzles.Day19.parse()
-
-    assert AdventOfCode.Puzzles.Day19.solve1(test_report) == 79
+    assert AdventOfCode.Puzzles.Day19.solve1(load_test_report()) == 79
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day19.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day19.solve2(load_test_report()) == 3621
+  end
+
+  defp load_test_report() do
+    File.read!("resources/day-19-test-input.txt")
+    |> AdventOfCode.Puzzles.Day19.parse()
   end
 end

@@ -21,8 +21,10 @@ defmodule AdventOfCode.Puzzles.Day20Test do
     assert AdventOfCode.Puzzles.Day20.solve1(load_test_image()) == 35
   end
 
+  # TODO the method should be sped up, it takes too long for 50 steps
+  @tag :skip
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day20.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day20.solve2(load_test_image()) == 3351
   end
 
   defp load_test_image() do

@@ -132,22 +132,257 @@ defmodule AdventOfCode.Puzzles.Day23 do
     #########
 
   What is the least energy required to organize the amphipods?
+
+  --- Part Two ---
+
+  As you prepare to give the amphipods your solution, you notice that
+  the diagram they handed you was actually folded up. As you unfold it, you
+  discover an extra part of the diagram.
+
+  Between the first and second lines of text that contain amphipod starting
+  positions, insert the following lines:
+
+    #D#C#B#A#
+    #D#B#A#C#
+
+  So, the above example now becomes:
+
+  #############
+  #...........#
+  ###B#C#B#D###
+    #D#C#B#A#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+
+  The amphipods still want to be organized into rooms similar to before:
+
+  #############
+  #...........#
+  ###A#B#C#D###
+    #A#B#C#D#
+    #A#B#C#D#
+    #A#B#C#D#
+    #########
+
+  In this updated example, the least energy required to organize these amphipods
+  is 44169:
+
+  #############
+  #...........#
+  ###B#C#B#D###
+    #D#C#B#A#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #..........D#
+  ###B#C#B#.###
+    #D#C#B#A#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #A.........D#
+  ###B#C#B#.###
+    #D#C#B#.#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #A........BD#
+  ###B#C#.#.###
+    #D#C#B#.#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #A......B.BD#
+  ###B#C#.#.###
+    #D#C#.#.#
+    #D#B#A#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #AA.....B.BD#
+  ###B#C#.#.###
+    #D#C#.#.#
+    #D#B#.#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #AA.....B.BD#
+  ###B#.#.#.###
+    #D#C#.#.#
+    #D#B#C#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #AA.....B.BD#
+  ###B#.#.#.###
+    #D#.#C#.#
+    #D#B#C#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #AA...B.B.BD#
+  ###B#.#.#.###
+    #D#.#C#.#
+    #D#.#C#C#
+    #A#D#C#A#
+    #########
+
+  #############
+  #AA.D.B.B.BD#
+  ###B#.#.#.###
+    #D#.#C#.#
+    #D#.#C#C#
+    #A#.#C#A#
+    #########
+
+  #############
+  #AA.D...B.BD#
+  ###B#.#.#.###
+    #D#.#C#.#
+    #D#.#C#C#
+    #A#B#C#A#
+    #########
+
+  #############
+  #AA.D.....BD#
+  ###B#.#.#.###
+    #D#.#C#.#
+    #D#B#C#C#
+    #A#B#C#A#
+    #########
+
+  #############
+  #AA.D......D#
+  ###B#.#.#.###
+    #D#B#C#.#
+    #D#B#C#C#
+    #A#B#C#A#
+    #########
+
+  #############
+  #AA.D......D#
+  ###B#.#C#.###
+    #D#B#C#.#
+    #D#B#C#.#
+    #A#B#C#A#
+    #########
+
+  #############
+  #AA.D.....AD#
+  ###B#.#C#.###
+    #D#B#C#.#
+    #D#B#C#.#
+    #A#B#C#.#
+    #########
+
+  #############
+  #AA.......AD#
+  ###B#.#C#.###
+    #D#B#C#.#
+    #D#B#C#.#
+    #A#B#C#D#
+    #########
+
+  #############
+  #AA.......AD#
+  ###.#B#C#.###
+    #D#B#C#.#
+    #D#B#C#.#
+    #A#B#C#D#
+    #########
+
+  #############
+  #AA.......AD#
+  ###.#B#C#.###
+    #.#B#C#.#
+    #D#B#C#D#
+    #A#B#C#D#
+    #########
+
+  #############
+  #AA.D.....AD#
+  ###.#B#C#.###
+    #.#B#C#.#
+    #.#B#C#D#
+    #A#B#C#D#
+    #########
+
+  #############
+  #A..D.....AD#
+  ###.#B#C#.###
+    #.#B#C#.#
+    #A#B#C#D#
+    #A#B#C#D#
+    #########
+
+  #############
+  #...D.....AD#
+  ###.#B#C#.###
+    #A#B#C#.#
+    #A#B#C#D#
+    #A#B#C#D#
+    #########
+
+  #############
+  #.........AD#
+  ###.#B#C#.###
+    #A#B#C#D#
+    #A#B#C#D#
+    #A#B#C#D#
+    #########
+
+  #############
+  #..........D#
+  ###A#B#C#.###
+    #A#B#C#D#
+    #A#B#C#D#
+    #A#B#C#D#
+    #########
+
+  #############
+  #...........#
+  ###A#B#C#D###
+    #A#B#C#D#
+    #A#B#C#D#
+    #A#B#C#D#
+    #########
+
+  Using the initial configuration from the full diagram, what is the least
+  energy required to organize the amphipods?
   """
   @empty_hallway '...........'
-  @expected_state ['AA', 'BB', 'CC', 'DD']
+  # @room_size 2
+  # @expected_state ['AA', 'BB', 'CC', 'DD']
+  @room_size 4
+  @expected_state ['AAAA', 'BBBB', 'CCCC', 'DDDD']
   @energy %{
     ?A => 1,
     ?B => 10,
     ?C => 100,
-    ?D => 1000,
+    ?D => 1000
   }
   @expected_room %{
     ?A => 0,
     ?B => 1,
     ?C => 2,
-    ?D => 3,
+    ?D => 3
   }
   @hallway_at_room [2, 4, 6, 8]
+
+  @injected_state ['DD', 'CB', 'BA', 'AC']
 
   def parse(input) do
     [_, _, room_outer, room_inner, _] =
@@ -164,22 +399,41 @@ defmodule AdventOfCode.Puzzles.Day23 do
     find_most_optimal(initial)
   end
 
-  def solve2(_) do
-    nil
+  def solve2(initial) do
+    Enum.zip_with(initial, @injected_state, fn [a1, a4], [a2, a3] -> [a1, a2, a3, a4] end)
+    |> find_most_optimal()
   end
 
-  defp find_most_optimal(rooms, hallway \\ @empty_hallway, cost \\ 0, most_optimal_so_far \\ nil)
+  defp find_most_optimal(
+         rooms,
+         hallway \\ @empty_hallway,
+         cost \\ 0,
+         potential_cost \\ 0,
+         most_optimal_so_far \\ nil
+       )
 
-  defp find_most_optimal(_, _, cost, most_optimal_so_far) when cost >= most_optimal_so_far, do: :non_optimal
+  defp find_most_optimal(_, _, cost, potential_cost, most_optimal_so_far)
+       when cost + potential_cost >= most_optimal_so_far,
+       do: :non_optimal
 
-  defp find_most_optimal(@expected_state, @empty_hallway, cost, _), do: cost
+  defp find_most_optimal(@expected_state, @empty_hallway, cost, _, _), do: cost
 
-  defp find_most_optimal(rooms, hallway, cost, most_optimal_so_far) do
+  defp find_most_optimal(rooms, hallway, cost, potential_cost, most_optimal_so_far) do
     case find_valid_moves(rooms, hallway) do
-      [] -> :lock
+      [] ->
+        :lock
+
       moves ->
-        Enum.reduce(moves, most_optimal_so_far, fn {rooms, hallway, move_cost}, min ->
-          case find_most_optimal(rooms, hallway, cost + move_cost, min) do
+        Enum.reduce(moves, most_optimal_so_far, fn {rooms, hallway, move_cost,
+                                                    move_potential_cost},
+                                                   min ->
+          case find_most_optimal(
+                 rooms,
+                 hallway,
+                 cost + move_cost,
+                 potential_cost + move_potential_cost,
+                 min
+               ) do
             :lock -> min
             :non_optimal -> min
             possible_min -> min(possible_min, min)
@@ -199,6 +453,7 @@ defmodule AdventOfCode.Puzzles.Day23 do
         expected_room = Enum.at(rooms, room_index)
 
         room_hallway_index = room_to_hallway(room_index)
+
         path_to_room =
           if i < room_hallway_index do
             Enum.slice(hallway, (i + 1)..room_hallway_index)
@@ -212,12 +467,18 @@ defmodule AdventOfCode.Puzzles.Day23 do
         can_go_to_room = Enum.all?(path_to_room, &(&1 == ?.))
 
         if can_enter_room and can_go_to_room do
-          updated_rooms = List.update_at(rooms, room_index, fn in_room -> [amphipod | in_room] end)
+          updated_rooms =
+            List.update_at(rooms, room_index, fn in_room -> [amphipod | in_room] end)
+
           updated_hallway = List.replace_at(hallway, i, ?.)
 
           move_cost = Map.get(@energy, amphipod)
 
-          [{updated_rooms, updated_hallway, (length(path_to_room) + 2 - length(expected_room)) * move_cost}]
+          [
+            {updated_rooms, updated_hallway,
+             (length(path_to_room) + @room_size - length(expected_room)) * move_cost,
+             -(length(path_to_room) + 1) * move_cost}
+          ]
         else
           []
         end
@@ -236,7 +497,7 @@ defmodule AdventOfCode.Puzzles.Day23 do
       |> Enum.flat_map(fn {[amphipod | rest_of_room], i} ->
         hallway_index = room_to_hallway(i)
         move_cost = Map.get(@energy, amphipod)
-        out_of_room_cost = if length(rest_of_room) == 0, do: move_cost * 2, else: move_cost
+        out_of_room_cost = (@room_size - length(rest_of_room)) * move_cost
 
         updated_rooms = List.replace_at(rooms, i, rest_of_room)
 
@@ -248,7 +509,11 @@ defmodule AdventOfCode.Puzzles.Day23 do
           |> Enum.map(fn i ->
             updated_hallway = List.replace_at(hallway, i, amphipod)
             in_hallway_cost = (hallway_index - i) * move_cost
-            {updated_rooms, updated_hallway, out_of_room_cost + in_hallway_cost}
+
+            potential_cost =
+              (room_to_hallway(Map.get(@expected_room, amphipod)) - i + 1) * move_cost
+
+            {updated_rooms, updated_hallway, out_of_room_cost + in_hallway_cost, potential_cost}
           end)
 
         move_to_right =
@@ -259,7 +524,11 @@ defmodule AdventOfCode.Puzzles.Day23 do
           |> Enum.map(fn i ->
             updated_hallway = List.replace_at(hallway, i, amphipod)
             in_hallway_cost = (i - hallway_index) * move_cost
-            {updated_rooms, updated_hallway, out_of_room_cost + in_hallway_cost}
+
+            potential_cost =
+              (room_to_hallway(Map.get(@expected_room, amphipod)) - i + 1) * move_cost
+
+            {updated_rooms, updated_hallway, out_of_room_cost + in_hallway_cost, potential_cost}
           end)
 
         move_to_left ++ move_to_right

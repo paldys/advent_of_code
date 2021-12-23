@@ -147,11 +147,88 @@ defmodule AdventOfCode.Puzzles.Day22 do
     end)
   end
 
-  def solve1(_) do
-    nil
+  def solve1(steps, {min, max} \\ {-50, 50}) do
+    Enum.map(steps, fn {action, {{x1, x2}, {y1, y2}, {z1, z2}}} ->
+      {action,
+       {{max(x1, min), min(x2, max)}, {max(y1, min), min(y2, max)}, {max(z1, min), min(z2, max)}}}
+    end)
+    |> Enum.filter(fn {_, {{x1, x2}, {y1, y2}, {z1, z2}}} ->
+      x1 <= x2 && y1 <= y2 && z1 <= z2
+    end)
+    |> boot_reactor()
+    |> count_cubes_on()
   end
 
   def solve2(_) do
     nil
+  end
+
+  defp count_cubes_on(reactor) do
+    Enum.map(reactor, fn cube ->
+      Tuple.to_list(cube)
+      |> Enum.map(fn {from, to} -> to - from + 1 end)
+      |> Enum.product()
+    end)
+    |> Enum.sum()
+  end
+
+  defp boot_reactor(steps) do
+    Enum.reduce(steps, [], fn {action, cube}, reactor ->
+      case action do
+        :on -> add_to_reactor(reactor, cube)
+        :off -> remove_from_reactor(reactor, cube)
+      end
+    end)
+  end
+
+  defp add_to_reactor(reactor, cube) do
+    new_cubes =
+      Enum.reduce(reactor, [cube], fn cube_on, new_cubes ->
+        remove_from_reactor(new_cubes, cube_on)
+      end)
+
+    reactor ++ new_cubes
+  end
+
+  defp remove_from_reactor(reactor, cube) do
+    Enum.flat_map(reactor, fn cube_on ->
+      substract(cube_on, cube)
+    end)
+  end
+
+  def substract(left, right) do
+    if is_overlapping(left, right) do
+      {{lx1, lx2}, {ly1, ly2}, {lz1, lz2}} = left
+      {{rx1, rx2}, {ry1, ry2}, {rz1, rz2}} = right
+
+      before_x = if lx1 <= rx1 - 1, do: {{lx1, rx1 - 1}, {ly1, ly2}, {lz1, lz2}}, else: nil
+      after_x = if rx2 + 1 <= lx2, do: {{rx2 + 1, lx2}, {ly1, ly2}, {lz1, lz2}}, else: nil
+
+      nx1 = max(lx1, rx1)
+      nx2 = min(lx2, rx2)
+
+      before_y = if ly1 <= ry1 - 1, do: {{nx1, nx2}, {ly1, ry1 - 1}, {lz1, lz2}}, else: nil
+      after_y = if ry2 + 1 <= ly2, do: {{nx1, nx2}, {ry2 + 1, ly2}, {lz1, lz2}}, else: nil
+
+      ny1 = max(ly1, ry1)
+      ny2 = min(ly2, ry2)
+
+      before_z = if lz1 <= rz1 - 1, do: {{nx1, nx2}, {ny1, ny2}, {lz1, rz1 - 1}}, else: nil
+      after_z = if rz2 + 1 <= lz2, do: {{nx1, nx2}, {ny1, ny2}, {rz2 + 1, lz2}}, else: nil
+
+      [before_x, after_x, before_y, after_y, before_z, after_z]
+      |> Enum.reject(&is_nil/1)
+    else
+      [left]
+    end
+  end
+
+  def is_overlapping(left, right) do
+    Enum.zip(Tuple.to_list(left), Tuple.to_list(right))
+    |> Enum.all?(fn {left, right} ->
+      [{_, l2}, {r1, _}] = Enum.sort_by([left, right], &elem(&1, 0))
+
+      r1 <= l2
+    end)
   end
 end

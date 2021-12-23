@@ -58,6 +58,32 @@ defmodule AdventOfCode.Puzzles.Day21 do
   Play a practice game using the deterministic 100-sided die. The moment either
   player wins, what do you get if you multiply the score of the losing player
   by the number of times the die was rolled during the game?
+
+  --- Part Two ---
+
+  Now that you're warmed up, it's time to play the real game.
+
+  A second compartment opens, this time labeled Dirac dice. Out of it falls
+  a single three-sided die.
+
+  As you experiment with the die, you feel a little strange. An informational
+  brochure in the compartment explains that this is a quantum die: when you roll
+  it, the universe splits into multiple copies, one copy for each possible
+  outcome of the die. In this case, rolling the die always splits the universe
+  into three copies: one where the outcome of the roll was 1, one where it was
+  2, and one where it was 3.
+
+  The game is played the same as before, although to prevent things from getting
+  too far out of hand, the game now ends when either player's score reaches at
+  least 21.
+
+  Using the same starting positions as in the example above, player 1 wins
+  in 444356092776315 universes, while player 2 merely wins in 341960390180808
+  universes.
+
+  Using your given starting positions, determine every possible outcome. Find
+  the player that wins in more universes; in how many universes does that player
+  win?
   """
   def parse(input) do
     String.split(input, "\n", trim: true)
@@ -78,8 +104,9 @@ defmodule AdventOfCode.Puzzles.Day21 do
     loser_points * rolls
   end
 
-  def solve2(_) do
-    nil
+  def solve2({p1_position, p2_position}) do
+    Tuple.to_list(play_dirac_turn(sum_dirac_die_rolls(3), p1_position, p2_position))
+    |> Enum.max()
   end
 
   defp play_turn(
@@ -113,5 +140,44 @@ defmodule AdventOfCode.Puzzles.Day21 do
 
   defp no_null_rem(dividend, divisor) do
     rem(dividend - 1, divisor) + 1
+  end
+
+  defp sum_dirac_die_rolls(rolls, sum_frequencies \\ %{0 => 1})
+
+  defp sum_dirac_die_rolls(0, sum_frequencies), do: Map.to_list(sum_frequencies)
+
+  defp sum_dirac_die_rolls(rolls, sum_frequencies) do
+    updated_sum_frequencies =
+      Map.to_list(sum_frequencies)
+      |> Enum.reduce(%{}, fn {sum, frequency}, updated_freq ->
+        Enum.reduce(1..3, updated_freq, fn new_roll, updated_freq ->
+          Map.update(updated_freq, sum + new_roll, frequency, &(&1 + frequency))
+        end)
+      end)
+
+    sum_dirac_die_rolls(rolls - 1, updated_sum_frequencies)
+  end
+
+  defp play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points \\ 0, p2_points \\ 0, whose_turn \\ :p1)
+
+  defp play_dirac_turn(_, _, _, p1_points, _, _) when p1_points >= 21, do: {1, 0}
+  defp play_dirac_turn(_, _, _, _, p2_points, _) when p2_points >= 21, do: {0, 1}
+
+  defp play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p1) do
+    Enum.reduce(roll_frequencies, {0, 0}, fn {roll, frequency}, {p1_wins, p2_wins} ->
+      p1_position = no_null_rem(p1_position + roll, 10)
+      p1_points = p1_points + p1_position
+      {new_p1_wins, new_p2_wins} = play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p2)
+      {p1_wins + frequency * new_p1_wins, p2_wins + frequency * new_p2_wins}
+    end)
+  end
+
+  defp play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p2) do
+    Enum.reduce(roll_frequencies, {0, 0}, fn {roll, frequency}, {p1_wins, p2_wins} ->
+      p2_position = no_null_rem(p2_position + roll, 10)
+      p2_points = p2_points + p2_position
+      {new_p1_wins, new_p2_wins} = play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p1)
+      {p1_wins + frequency * new_p1_wins, p2_wins + frequency * new_p2_wins}
+    end)
   end
 end

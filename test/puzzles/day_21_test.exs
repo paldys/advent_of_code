@@ -16,7 +16,8 @@ defmodule AdventOfCode.Puzzles.Day21Test do
     assert AdventOfCode.Puzzles.Day21.solve1(@test_starting_positions) == 739_785
   end
 
+  @tag :slow
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day21.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day21.solve2(@test_starting_positions) == 444_356_092_776_315
   end
 end

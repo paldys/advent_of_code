@@ -158,7 +158,14 @@ defmodule AdventOfCode.Puzzles.Day21 do
     sum_dirac_die_rolls(rolls - 1, updated_sum_frequencies)
   end
 
-  defp play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points \\ 0, p2_points \\ 0, whose_turn \\ :p1)
+  defp play_dirac_turn(
+         roll_frequencies,
+         p1_position,
+         p2_position,
+         p1_points \\ 0,
+         p2_points \\ 0,
+         whose_turn \\ :p1
+       )
 
   defp play_dirac_turn(_, _, _, p1_points, _, _) when p1_points >= 21, do: {1, 0}
   defp play_dirac_turn(_, _, _, _, p2_points, _) when p2_points >= 21, do: {0, 1}
@@ -167,7 +174,10 @@ defmodule AdventOfCode.Puzzles.Day21 do
     Enum.reduce(roll_frequencies, {0, 0}, fn {roll, frequency}, {p1_wins, p2_wins} ->
       p1_position = no_null_rem(p1_position + roll, 10)
       p1_points = p1_points + p1_position
-      {new_p1_wins, new_p2_wins} = play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p2)
+
+      {new_p1_wins, new_p2_wins} =
+        play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p2)
+
       {p1_wins + frequency * new_p1_wins, p2_wins + frequency * new_p2_wins}
     end)
   end
@@ -176,7 +186,10 @@ defmodule AdventOfCode.Puzzles.Day21 do
     Enum.reduce(roll_frequencies, {0, 0}, fn {roll, frequency}, {p1_wins, p2_wins} ->
       p2_position = no_null_rem(p2_position + roll, 10)
       p2_points = p2_points + p2_position
-      {new_p1_wins, new_p2_wins} = play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p1)
+
+      {new_p1_wins, new_p2_wins} =
+        play_dirac_turn(roll_frequencies, p1_position, p2_position, p1_points, p2_points, :p1)
+
       {p1_wins + frequency * new_p1_wins, p2_wins + frequency * new_p2_wins}
     end)
   end

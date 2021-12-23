@@ -133,6 +133,22 @@ defmodule AdventOfCode.Puzzles.Day23 do
 
   What is the least energy required to organize the amphipods?
   """
+  @empty_hallway '...........'
+  @expected_state ['AA', 'BB', 'CC', 'DD']
+  @energy %{
+    ?A => 1,
+    ?B => 10,
+    ?C => 100,
+    ?D => 1000,
+  }
+  @expected_room %{
+    ?A => 0,
+    ?B => 1,
+    ?C => 2,
+    ?D => 3,
+  }
+  @hallway_at_room [2, 4, 6, 8]
+
   def parse(input) do
     [_, _, room_outer, room_inner, _] =
       String.split(input, "\n", trim: true)
@@ -144,11 +160,113 @@ defmodule AdventOfCode.Puzzles.Day23 do
     Enum.zip_with(room_outer, room_inner, fn o, i -> [o, i] end)
   end
 
-  def solve1(_) do
-    nil
+  def solve1(initial) do
+    find_most_optimal(initial)
   end
 
   def solve2(_) do
     nil
   end
+
+  defp find_most_optimal(rooms, hallway \\ @empty_hallway, cost \\ 0, most_optimal_so_far \\ nil)
+
+  defp find_most_optimal(_, _, cost, most_optimal_so_far) when cost >= most_optimal_so_far, do: :non_optimal
+
+  defp find_most_optimal(@expected_state, @empty_hallway, cost, _), do: cost
+
+  defp find_most_optimal(rooms, hallway, cost, most_optimal_so_far) do
+    case find_valid_moves(rooms, hallway) do
+      [] -> :lock
+      moves ->
+        Enum.reduce(moves, most_optimal_so_far, fn {rooms, hallway, move_cost}, min ->
+          case find_most_optimal(rooms, hallway, cost + move_cost, min) do
+            :lock -> min
+            :non_optimal -> min
+            possible_min -> min(possible_min, min)
+          end
+        end)
+    end
+  end
+
+  defp find_valid_moves(rooms, hallway) do
+    moves_to_room =
+      Enum.with_index(hallway)
+      |> Enum.filter(fn {in_hallway, _} ->
+        in_hallway != ?.
+      end)
+      |> Enum.flat_map(fn {amphipod, i} ->
+        room_index = Map.get(@expected_room, amphipod)
+        expected_room = Enum.at(rooms, room_index)
+
+        room_hallway_index = room_to_hallway(room_index)
+        path_to_room =
+          if i < room_hallway_index do
+            Enum.slice(hallway, (i + 1)..room_hallway_index)
+          else
+            Enum.slice(hallway, room_hallway_index..(i - 1))
+          end
+
+        can_enter_room =
+          Enum.all?(expected_room, fn amphipod_in_room -> amphipod_in_room == amphipod end)
+
+        can_go_to_room = Enum.all?(path_to_room, &(&1 == ?.))
+
+        if can_enter_room and can_go_to_room do
+          updated_rooms = List.update_at(rooms, room_index, fn in_room -> [amphipod | in_room] end)
+          updated_hallway = List.replace_at(hallway, i, ?.)
+
+          move_cost = Map.get(@energy, amphipod)
+
+          [{updated_rooms, updated_hallway, (length(path_to_room) + 2 - length(expected_room)) * move_cost}]
+        else
+          []
+        end
+      end)
+
+    moves_from_room =
+      Enum.with_index(rooms)
+      |> Enum.filter(fn {room, _} ->
+        length(room) > 0
+      end)
+      |> Enum.filter(fn {room, i} ->
+        amphipod = hd(room)
+        room_index = Map.get(@expected_room, amphipod)
+        room_index != i || !Enum.all?(room, &(&1 == amphipod))
+      end)
+      |> Enum.flat_map(fn {[amphipod | rest_of_room], i} ->
+        hallway_index = room_to_hallway(i)
+        move_cost = Map.get(@energy, amphipod)
+        out_of_room_cost = if length(rest_of_room) == 0, do: move_cost * 2, else: move_cost
+
+        updated_rooms = List.replace_at(rooms, i, rest_of_room)
+
+        move_to_left =
+          Enum.take_while((hallway_index - 1)..0, fn i ->
+            Enum.at(hallway, i) == ?.
+          end)
+          |> Enum.reject(fn i -> Enum.member?(@hallway_at_room, i) end)
+          |> Enum.map(fn i ->
+            updated_hallway = List.replace_at(hallway, i, amphipod)
+            in_hallway_cost = (hallway_index - i) * move_cost
+            {updated_rooms, updated_hallway, out_of_room_cost + in_hallway_cost}
+          end)
+
+        move_to_right =
+          Enum.take_while((hallway_index + 1)..10, fn i ->
+            Enum.at(hallway, i) == ?.
+          end)
+          |> Enum.reject(fn i -> Enum.member?(@hallway_at_room, i) end)
+          |> Enum.map(fn i ->
+            updated_hallway = List.replace_at(hallway, i, amphipod)
+            in_hallway_cost = (i - hallway_index) * move_cost
+            {updated_rooms, updated_hallway, out_of_room_cost + in_hallway_cost}
+          end)
+
+        move_to_left ++ move_to_right
+      end)
+
+    moves_to_room ++ moves_from_room
+  end
+
+  defp room_to_hallway(i), do: i * 2 + 2
 end

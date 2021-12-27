@@ -118,11 +118,145 @@ defmodule AdventOfCode.Puzzles.Day24 do
     end)
   end
 
-  def solve1(_) do
-    nil
+  def solve1(instructions) do
+    evaluation_tree(instructions)
+    |> Enum.map(&Map.get(&1, :z))
+    |> find_model_number()
+    |> Enum.join()
   end
 
   def solve2(_) do
     nil
+  end
+
+  defp evaluation_tree(
+         instructions,
+         variables \\ %{w: {:literal, 0}, x: {:literal, 0}, y: {:literal, 0}, z: {:literal, 0}},
+         prev_variables \\ []
+       )
+
+  defp evaluation_tree([], variables, prev_variables),
+    do: Enum.reverse([variables | prev_variables]) |> tl()
+
+  defp evaluation_tree([{:inp, reg} | rest], variables, prev_variables) do
+    prev_variables = [variables | prev_variables]
+
+    variables =
+      Enum.map(variables, fn {k, v} ->
+        cond do
+          k == reg -> {k, {:input}}
+          elem(v, 0) == :literal -> {k, v}
+          true -> {k, {:prev, k}}
+        end
+      end)
+      |> Map.new()
+
+    evaluation_tree(rest, variables, prev_variables)
+  end
+
+  defp evaluation_tree([{operator, reg, reg_or_val} | rest], variables, prev_variables) do
+    right =
+      if is_atom(reg_or_val), do: Map.get(variables, reg_or_val), else: {:literal, reg_or_val}
+
+    variables =
+      Map.update!(variables, reg, fn left ->
+        case {operator, left, right} do
+          {operator, {:literal, left_value}, {:literal, right_value}} ->
+            {:literal, evaluate_operation(operator, left_value, right_value)}
+
+          {:mul, {:literal, 0}, _} ->
+            {:literal, 0}
+
+          {:mul, _, {:literal, 0}} ->
+            {:literal, 0}
+
+          {:mul, {:literal, 1}, right} ->
+            right
+
+          {:mul, left, {:literal, 1}} ->
+            left
+
+          {:add, {:literal, 0}, right} ->
+            right
+
+          {:add, left, {:literal, 0}} ->
+            left
+
+          {:div, left, {:literal, 1}} ->
+            left
+
+          {:eql, {:eql, left, right}, {:literal, 0}} ->
+            {:neql, left, right}
+
+          {:eql, {:literal, v}, {:input}} when v > 9 ->
+            {:literal, 0}
+
+          {:neql, {:literal, v}, {:input}} when v > 9 ->
+            {:literal, 1}
+
+          {operator, left, right} ->
+            {operator, left, right}
+        end
+      end)
+
+    evaluation_tree(rest, variables, prev_variables)
+  end
+
+  defp evaluate_operation(operator, left, right) do
+    case operator do
+      :add -> left + right
+      :mul -> left * right
+      :div -> div(left, right)
+      :mod -> rem(left, right)
+      :eql -> if left == right, do: 1, else: 0
+      :neql -> if left != right, do: 1, else: 0
+    end
+  end
+
+  defp find_model_number([evaluation_tree | rest], z \\ 0, depth \\ 0, cache \\ MapSet.new()) do
+    if MapSet.member?(cache, {depth, z}) do
+      {:invalid, cache}
+    else
+      Enum.reduce_while(9..1, {:invalid, cache}, fn n, {:invalid, cache} ->
+        new_z = evaluate_tree(evaluation_tree, z, n)
+
+        case rest do
+          [] ->
+            if new_z == 0, do: {:halt, [n]}, else: {:cont, {:invalid, cache}}
+
+          _ ->
+            case find_model_number(rest, new_z, depth + 1, cache) do
+              {:invalid, cache} -> {:cont, {:invalid, MapSet.put(cache, {depth + 1, new_z})}}
+              model_number -> {:halt, [n | model_number]}
+            end
+        end
+      end)
+    end
+  end
+
+  def evaluate_tree(operation, prev_z, input) do
+    case operation do
+      {:input} ->
+        input
+
+      {:prev, :z} ->
+        prev_z
+
+      {:literal, v} ->
+        v
+
+      {operator, left, right} ->
+        left_value = evaluate_tree(left, prev_z, input)
+        right_value = evaluate_tree(right, prev_z, input)
+
+        case operator do
+          :add -> left_value + right_value
+          :mul -> left_value * right_value
+          :div -> div(left_value, right_value)
+          :mod -> rem(left_value, right_value)
+          :eql -> if left_value == right_value, do: 1, else: 0
+          :neql -> if left_value != right_value, do: 1, else: 0
+        end
+    end
   end
 end

@@ -102,6 +102,13 @@ defmodule AdventOfCode.Puzzles.Day24 do
   To enable as many submarine features as possible, find the largest valid
   fourteen-digit model number that contains no 0 digits. What is
   the largest model number accepted by MONAD?
+
+  --- Part Two ---
+
+  As the submarine starts booting up things like the Retro Encabulator, you
+  realize that maybe you don't need all these submarine features after all.
+
+  What is the smallest model number accepted by MONAD?
   """
   def parse(input) do
     String.split(input, "\n", trim: true)
@@ -125,8 +132,11 @@ defmodule AdventOfCode.Puzzles.Day24 do
     |> Enum.join()
   end
 
-  def solve2(_) do
-    nil
+  def solve2(instructions) do
+    evaluation_tree(instructions)
+    |> Enum.map(&Map.get(&1, :z))
+    |> find_model_number(1..9)
+    |> Enum.join()
   end
 
   defp evaluation_tree(
@@ -213,11 +223,17 @@ defmodule AdventOfCode.Puzzles.Day24 do
     end
   end
 
-  defp find_model_number([evaluation_tree | rest], z \\ 0, depth \\ 0, cache \\ MapSet.new()) do
+  defp find_model_number(
+         [evaluation_tree | rest],
+         input_range \\ 9..1,
+         z \\ 0,
+         depth \\ 0,
+         cache \\ MapSet.new()
+       ) do
     if MapSet.member?(cache, {depth, z}) do
       {:invalid, cache}
     else
-      Enum.reduce_while(9..1, {:invalid, cache}, fn n, {:invalid, cache} ->
+      Enum.reduce_while(input_range, {:invalid, cache}, fn n, {:invalid, cache} ->
         new_z = evaluate_tree(evaluation_tree, z, n)
 
         case rest do
@@ -225,7 +241,7 @@ defmodule AdventOfCode.Puzzles.Day24 do
             if new_z == 0, do: {:halt, [n]}, else: {:cont, {:invalid, cache}}
 
           _ ->
-            case find_model_number(rest, new_z, depth + 1, cache) do
+            case find_model_number(rest, input_range, new_z, depth + 1, cache) do
               {:invalid, cache} -> {:cont, {:invalid, MapSet.put(cache, {depth + 1, new_z})}}
               model_number -> {:halt, [n | model_number]}
             end

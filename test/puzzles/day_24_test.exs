@@ -71,6 +71,11 @@ defmodule AdventOfCode.Puzzles.Day24Test do
   end
 
   test "solve 2nd puzzle" do
-    assert AdventOfCode.Puzzles.Day24.solve2(nil) == nil
+    assert AdventOfCode.Puzzles.Day24.solve2([
+             {:inp, :w},
+             {:mul, :z, 0},
+             {:add, :z, :w},
+             {:mod, :z, 2}
+           ]) == "2"
   end
 end

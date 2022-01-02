@@ -30,7 +30,7 @@ defmodule AdventOfCode.Puzzles.Day25Test do
   end
 
   test "solve 1st puzzle" do
-    assert AdventOfCode.Puzzles.Day25.solve1(nil) == nil
+    assert AdventOfCode.Puzzles.Day25.solve1(@initial_state) == 58
   end
 
   test "solve 2nd puzzle" do

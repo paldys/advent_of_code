@@ -324,11 +324,48 @@ defmodule AdventOfCode.Puzzles.Day25 do
     |> Arrays.new()
   end
 
-  def solve1(_) do
-    nil
+  def solve1(initial_state) do
+    height = Arrays.size(initial_state)
+    width = Arrays.size(initial_state[0])
+
+    make_step(initial_state, width, height)
   end
 
   def solve2(_) do
     nil
+  end
+
+  defp make_step(state, width, height, steps \\ 1) do
+    {state, updated} =
+      Enum.reduce(0..(height - 1), {state, false}, fn x, {updated_state, updated} ->
+        Enum.reduce(0..(width - 1), {updated_state, updated}, fn y, {updated_state, updated} ->
+          cond do
+            state[x][y] == ?> and state[x][rem(y + 1, width)] == ?. ->
+              updated_state = put_in(updated_state[x][y], ?.)
+              updated_state = put_in(updated_state[x][rem(y + 1, width)], ?>)
+              {updated_state, true}
+
+            true ->
+              {updated_state, updated}
+          end
+        end)
+      end)
+
+    {state, updated} =
+      Enum.reduce(0..(height - 1), {state, updated}, fn x, {updated_state, updated} ->
+        Enum.reduce(0..(width - 1), {updated_state, updated}, fn y, {updated_state, updated} ->
+          cond do
+            state[x][y] == ?v and state[rem(x + 1, height)][y] == ?. ->
+              updated_state = put_in(updated_state[x][y], ?.)
+              updated_state = put_in(updated_state[rem(x + 1, height)][y], ?v)
+              {updated_state, true}
+
+            true ->
+              {updated_state, updated}
+          end
+        end)
+      end)
+
+    if updated, do: make_step(state, width, height, steps + 1), else: steps
   end
 end

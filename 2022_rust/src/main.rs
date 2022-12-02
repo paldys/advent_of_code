@@ -1,4 +1,7 @@
 use clap::Parser;
+use std::fs;
+
+pub mod puzzles;
 
 #[derive(Parser)]
 struct Args {
@@ -9,7 +12,8 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse();
+    let day_01_input =
+        fs::read_to_string("resources/day_01_input.txt").expect("Could not read input");
 
-    println!("Solve Day {} Puzzle #{}", args.day, args.puzzle);
+    println!("Answer: {}", puzzles::day_01::solve_first(day_01_input))
 }

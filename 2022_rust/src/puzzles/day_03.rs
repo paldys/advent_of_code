@@ -15,12 +15,13 @@ pub fn solve_first(input: String) -> u32 {
                 second_compartment.chars().collect::<HashSet<char>>(),
             )
         })
-        .map(|(first_compartment, second_compartment)| {
+        .flat_map(|(first_compartment, second_compartment)| {
             first_compartment
                 .intersection(&second_compartment)
-                .map(|item| item_priority(*item))
-                .sum::<u32>()
+                .map(|i| *i)
+                .collect::<Vec<char>>()
         })
+        .map(item_priority)
         .sum()
 }
 
@@ -30,13 +31,15 @@ pub fn solve_second(input: String) -> u32 {
         .filter(|line| !line.is_empty())
         .map(|rucksack| rucksack.chars().collect::<HashSet<char>>())
         .array_chunks::<3>()
-        .map(|[rucksack1, rucksack2, rucksack3]| {
-            rucksack1.iter()
+        .flat_map(|[rucksack1, rucksack2, rucksack3]| {
+            rucksack1
+                .iter()
                 .filter(|i| rucksack2.contains(i))
                 .filter(|i| rucksack3.contains(i))
-                .map(|item| item_priority(*item))
-                .sum::<u32>()
+                .map(|i| *i)
+                .collect::<Vec<char>>()
         })
+        .map(item_priority)
         .sum()
 }
 

@@ -18,7 +18,7 @@ fn main() {
 
     let puzzles = puzzles::get_all_puzzles();
 
-    if args.day == 0 || puzzles.len() - 1 > args.day {
+    if args.day == 0 || puzzles.len() - 1 < args.day {
         panic!("Invalid day provided")
     }
 

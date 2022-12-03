@@ -1,13 +1,9 @@
 use std::collections::HashSet;
 
-const LOWER_CASE_A: u32 = 'a' as u32;
-const UPPER_CASE_A: u32 = 'A' as u32;
-const ALPHABET_SIZE: u32 = 26;
-
 pub fn solve_first(input: String) -> u32 {
     input
+        .trim_end()
         .split('\n')
-        .filter(|line| !line.is_empty())
         .map(|line| line.split_at(line.len() / 2))
         .map(|(first_compartment, second_compartment)| {
             (
@@ -15,37 +11,41 @@ pub fn solve_first(input: String) -> u32 {
                 second_compartment.chars().collect::<HashSet<char>>(),
             )
         })
-        .map(|(first_compartment, second_compartment)| {
+        .flat_map(|(first_compartment, second_compartment)| {
             first_compartment
                 .intersection(&second_compartment)
-                .map(|item| item_priority(*item))
-                .sum::<u32>()
+                .map(|i| *i)
+                .collect::<Vec<char>>()
         })
+        .map(item_priority)
         .sum()
 }
 
 pub fn solve_second(input: String) -> u32 {
     input
+        .trim_end()
         .split('\n')
-        .filter(|line| !line.is_empty())
         .map(|rucksack| rucksack.chars().collect::<HashSet<char>>())
         .array_chunks::<3>()
-        .map(|[rucksack1, rucksack2, rucksack3]| {
-            rucksack1.iter()
+        .flat_map(|[rucksack1, rucksack2, rucksack3]| {
+            rucksack1
+                .iter()
                 .filter(|i| rucksack2.contains(i))
                 .filter(|i| rucksack3.contains(i))
-                .map(|item| item_priority(*item))
-                .sum::<u32>()
+                .map(|i| *i)
+                .collect::<Vec<char>>()
         })
+        .map(item_priority)
         .sum()
 }
 
 fn item_priority(item: char) -> u32 {
-    let item_priority = (item as u32) - UPPER_CASE_A + 1;
-    if item_priority > ALPHABET_SIZE {
-        return (item as u32) - LOWER_CASE_A + 1;
+    let item_code = item as u32;
+    match item {
+        'a'..='z' => item_code - ('a' as u32) + 1,
+        'A'..='Z' => item_code - ('A' as u32) + 27,
+        _ => panic!("Unknown item"),
     }
-    item_priority + ALPHABET_SIZE
 }
 
 #[cfg(test)]
@@ -57,7 +57,7 @@ mod tests {
     PmmdzqPrVvPwwTWBwg\n\
     wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\n\
     ttgJtRGJQctTZtZT\n\
-    CrZsJsPPZsGzwwsLwLmpwMDw";
+    CrZsJsPPZsGzwwsLwLmpwMDw\n";
 
     #[test]
     fn solves_first() {

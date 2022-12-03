@@ -22,7 +22,6 @@ fn solve(input: String, top_n: u32) -> u32 {
             current_calories += calory;
         }
     }
-    calory_heap.push(current_calories);
 
     let mut most_calories_sum = 0;
     for _ in 1..=top_n {
@@ -48,7 +47,7 @@ mod tests {
     8000\n\
     9000\n\
     \n\
-    10000";
+    10000\n";
 
     #[test]
     fn solves_first() {

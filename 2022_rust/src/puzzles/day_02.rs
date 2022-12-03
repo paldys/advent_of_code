@@ -46,10 +46,7 @@ pub fn solve_second(input: String) -> u32 {
 
 fn solve(input: String, score_sheet: &phf::Map<char, phf::Map<char, u32>>) -> u32 {
     let mut score = 0;
-    for line in input.split('\n') {
-        if line.is_empty() {
-            continue;
-        }
+    for line in input.trim_end().split('\n') {
         let mut line = line.chars();
         let opponent = line
             .next()
@@ -72,7 +69,7 @@ mod tests {
 
     static RAW_INPUT: &str = "A Y\n\
     B X\n\
-    C Z";
+    C Z\n";
 
     #[test]
     fn solves_first() {

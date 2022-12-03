@@ -6,24 +6,33 @@ pub mod puzzles;
 #[derive(Parser)]
 struct Args {
     /// The day of the puzzle
-    day: u8,
-    /// The number of the puzzle
-    puzzle: u8,
+    day: usize,
+    /// The part of the puzzle
+    part: u8,
 }
 
 fn main() {
     let args = Args::parse();
 
-    println!("Solve Day 1 Puzzle {}", args.puzzle);
+    println!("Solve Day {} Puzzle Part {}", args.day, args.part);
 
-    let day_01_input =
-        fs::read_to_string("resources/day_01_input.txt").expect("Could not read input");
+    let puzzles = puzzles::get_all_puzzles();
 
-    let answer = if args.puzzle == 1 {
-        puzzles::day_01::solve_first(day_01_input)
-    } else {
-        puzzles::day_01::solve_second(day_01_input)
+    if args.day == 0 || puzzles.len() - 1 > args.day {
+        panic!("Invalid day provided")
+    }
+
+    let file_name = format!("resources/day_{:0>2}_input.txt", args.day);
+    let days_puzzle = puzzles[args.day - 1];
+
+    let solver = match args.part {
+        1 => days_puzzle.0,
+        2 => days_puzzle.1,
+        _ => panic!("Invalid part provided"),
     };
+
+    let input = fs::read_to_string(file_name).expect("Could not read input");
+    let answer = solver(input);
 
     println!("Answer: {}", answer)
 }

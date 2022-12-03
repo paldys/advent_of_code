@@ -1,9 +1,5 @@
 use std::collections::HashSet;
 
-const LOWER_CASE_A: u32 = 'a' as u32;
-const UPPER_CASE_A: u32 = 'A' as u32;
-const ALPHABET_SIZE: u32 = 26;
-
 pub fn solve_first(input: String) -> u32 {
     input
         .trim_end()
@@ -44,11 +40,12 @@ pub fn solve_second(input: String) -> u32 {
 }
 
 fn item_priority(item: char) -> u32 {
-    let item_priority = (item as u32) - UPPER_CASE_A + 1;
-    if item_priority > ALPHABET_SIZE {
-        return (item as u32) - LOWER_CASE_A + 1;
+    let item_code = item as u32;
+    match item {
+        'a'..='z' => item_code - ('a' as u32) + 1,
+        'A'..='Z' => item_code - ('A' as u32) + 27,
+        _ => panic!("Unknown item"),
     }
-    item_priority + ALPHABET_SIZE
 }
 
 #[cfg(test)]

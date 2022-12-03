@@ -24,6 +24,22 @@ pub fn solve_first(input: String) -> u32 {
         .sum()
 }
 
+pub fn solve_second(input: String) -> u32 {
+    input
+        .split('\n')
+        .filter(|line| !line.is_empty())
+        .map(|rucksack| rucksack.chars().collect::<HashSet<char>>())
+        .array_chunks::<3>()
+        .map(|[rucksack1, rucksack2, rucksack3]| {
+            rucksack1.iter()
+                .filter(|i| rucksack2.contains(i))
+                .filter(|i| rucksack3.contains(i))
+                .map(|item| item_priority(*item))
+                .sum::<u32>()
+        })
+        .sum()
+}
+
 fn item_priority(item: char) -> u32 {
     let item_priority = (item as u32) - UPPER_CASE_A + 1;
     if item_priority > ALPHABET_SIZE {
@@ -46,5 +62,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq!(157, solve_first(String::from(RAW_INPUT)))
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq!(70, solve_second(String::from(RAW_INPUT)))
     }
 }

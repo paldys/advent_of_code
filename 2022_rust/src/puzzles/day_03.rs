@@ -6,8 +6,8 @@ const ALPHABET_SIZE: u32 = 26;
 
 pub fn solve_first(input: String) -> u32 {
     input
+        .trim_end()
         .split('\n')
-        .filter(|line| !line.is_empty())
         .map(|line| line.split_at(line.len() / 2))
         .map(|(first_compartment, second_compartment)| {
             (
@@ -27,8 +27,8 @@ pub fn solve_first(input: String) -> u32 {
 
 pub fn solve_second(input: String) -> u32 {
     input
+        .trim_end()
         .split('\n')
-        .filter(|line| !line.is_empty())
         .map(|rucksack| rucksack.chars().collect::<HashSet<char>>())
         .array_chunks::<3>()
         .flat_map(|[rucksack1, rucksack2, rucksack3]| {
@@ -60,7 +60,7 @@ mod tests {
     PmmdzqPrVvPwwTWBwg\n\
     wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\n\
     ttgJtRGJQctTZtZT\n\
-    CrZsJsPPZsGzwwsLwLmpwMDw";
+    CrZsJsPPZsGzwwsLwLmpwMDw\n";
 
     #[test]
     fn solves_first() {

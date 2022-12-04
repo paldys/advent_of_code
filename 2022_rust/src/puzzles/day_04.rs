@@ -13,6 +13,18 @@ pub fn solve_first(input: String) -> u32 {
         .count() as u32
 }
 
+pub fn solve_second(input: String) -> u32 {
+    input
+        .trim_end()
+        .split('\n')
+        .map(parse_line)
+        .filter(|[left_start, left_end, right_start, right_end]| {
+            (left_start <= right_start && left_end >= right_start)
+                || (left_start <= right_end && left_end >= right_start)
+        })
+        .count() as u32
+}
+
 fn parse_line(line: &str) -> [u32; 4] {
     lazy_static! {
         static ref ASSIGNMENT_PAIR_RE: Regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
@@ -50,5 +62,11 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq!(2, solve_first(String::from(RAW_INPUT)))
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq!(4, solve_second(String::from(RAW_INPUT)));
+        assert_eq!(1, solve_second(String::from("3-4,2-6")));
     }
 }

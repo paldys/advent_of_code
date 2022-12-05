@@ -4,6 +4,7 @@ use clap::Parser;
 use std::fs;
 
 pub mod puzzles;
+pub mod utils;
 
 #[derive(Parser)]
 struct Args {
@@ -37,5 +38,6 @@ fn main() {
 
     match solver(input) {
         puzzles::Result::Number(number) => println!("Answer: {}", number),
+        puzzles::Result::String(string) => println!("Answer: {}", string),
     }
 }

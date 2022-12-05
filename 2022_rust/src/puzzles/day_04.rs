@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use super::Result;
+use crate::utils::unwrap_match_to_usize;
 
 pub fn solve_first(input: String) -> Result {
     let res = input
@@ -31,7 +32,7 @@ pub fn solve_second(input: String) -> Result {
     Result::Number(res)
 }
 
-fn parse_line(line: &str) -> [u32; 4] {
+fn parse_line(line: &str) -> [usize; 4] {
     lazy_static! {
         static ref ASSIGNMENT_PAIR_RE: Regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
     }
@@ -39,19 +40,11 @@ fn parse_line(line: &str) -> [u32; 4] {
         .captures(line)
         .expect("Input line is not of expected format");
     [
-        unwrap_match_to_u32(captures.get(1)),
-        unwrap_match_to_u32(captures.get(2)),
-        unwrap_match_to_u32(captures.get(3)),
-        unwrap_match_to_u32(captures.get(4)),
+        unwrap_match_to_usize(captures.get(1)),
+        unwrap_match_to_usize(captures.get(2)),
+        unwrap_match_to_usize(captures.get(3)),
+        unwrap_match_to_usize(captures.get(4)),
     ]
-}
-
-fn unwrap_match_to_u32(re_match: Option<regex::Match<'_>>) -> u32 {
-    re_match
-        .unwrap()
-        .as_str()
-        .parse()
-        .expect("Expected a number here")
 }
 
 #[cfg(test)]

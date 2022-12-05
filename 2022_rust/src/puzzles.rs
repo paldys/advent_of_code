@@ -3,11 +3,16 @@ mod day_02;
 mod day_03;
 mod day_04;
 
-fn panic_not_implemented(_: String) -> u32 {
+#[derive(Debug, PartialEq)]
+pub enum Result {
+    Number(u32),
+}
+
+fn panic_not_implemented(_: String) -> Result {
     panic!("Not implemented")
 }
 
-pub fn get_all_puzzles() -> [(fn(String) -> u32, fn(String) -> u32); 25] {
+pub fn get_all_puzzles() -> [(fn(String) -> Result, fn(String) -> Result); 25] {
     [
         (day_01::solve_first, day_01::solve_second),
         (day_02::solve_first, day_02::solve_second),
@@ -35,4 +40,8 @@ pub fn get_all_puzzles() -> [(fn(String) -> u32, fn(String) -> u32); 25] {
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),
     ]
+}
+
+pub fn assert_eq_number(expected: u32, actual: Result) {
+    assert_eq!(Result::Number(expected), actual)
 }

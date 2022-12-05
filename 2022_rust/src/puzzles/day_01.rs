@@ -1,11 +1,12 @@
+use super::Result;
 use std::collections::BinaryHeap;
 
-pub fn solve_first(input: String) -> u32 {
-    solve(input, 1)
+pub fn solve_first(input: String) -> Result {
+    Result::Number(solve(input, 1))
 }
 
-pub fn solve_second(input: String) -> u32 {
-    solve(input, 3)
+pub fn solve_second(input: String) -> Result {
+    Result::Number(solve(input, 3))
 }
 
 fn solve(input: String, top_n: u32) -> u32 {
@@ -32,6 +33,8 @@ fn solve(input: String, top_n: u32) -> u32 {
 
 #[cfg(test)]
 mod tests {
+    use crate::puzzles::assert_eq_number;
+
     use super::*;
 
     static RAW_INPUT: &str = "1000\n\
@@ -51,11 +54,11 @@ mod tests {
 
     #[test]
     fn solves_first() {
-        assert_eq!(24000, solve_first(String::from(RAW_INPUT)))
+        assert_eq_number(24000, solve_first(String::from(RAW_INPUT)));
     }
 
     #[test]
     fn solves_second() {
-        assert_eq!(45000, solve_second(String::from(RAW_INPUT)))
+        assert_eq_number(45000, solve_second(String::from(RAW_INPUT)));
     }
 }

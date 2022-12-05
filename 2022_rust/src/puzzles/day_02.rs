@@ -1,5 +1,7 @@
 use phf::phf_map;
 
+use super::Result;
+
 static SCORE_SHEET_1: phf::Map<char, phf::Map<char, u32>> = phf_map! {
     'A' => phf_map! {
         'X' => 1 + 3,
@@ -36,12 +38,12 @@ static SCORE_SHEET_2: phf::Map<char, phf::Map<char, u32>> = phf_map! {
     },
 };
 
-pub fn solve_first(input: String) -> u32 {
-    solve(input, &SCORE_SHEET_1)
+pub fn solve_first(input: String) -> Result {
+    Result::Number(solve(input, &SCORE_SHEET_1))
 }
 
-pub fn solve_second(input: String) -> u32 {
-    solve(input, &SCORE_SHEET_2)
+pub fn solve_second(input: String) -> Result {
+    Result::Number(solve(input, &SCORE_SHEET_2))
 }
 
 fn solve(input: String, score_sheet: &phf::Map<char, phf::Map<char, u32>>) -> u32 {
@@ -65,6 +67,8 @@ fn solve(input: String, score_sheet: &phf::Map<char, phf::Map<char, u32>>) -> u3
 
 #[cfg(test)]
 mod tests {
+    use crate::puzzles::assert_eq_number;
+
     use super::*;
 
     static RAW_INPUT: &str = "A Y\n\
@@ -73,11 +77,11 @@ mod tests {
 
     #[test]
     fn solves_first() {
-        assert_eq!(15, solve_first(String::from(RAW_INPUT)))
+        assert_eq_number(15, solve_first(String::from(RAW_INPUT)))
     }
 
     #[test]
     fn solves_second() {
-        assert_eq!(12, solve_second(String::from(RAW_INPUT)))
+        assert_eq_number(12, solve_second(String::from(RAW_INPUT)))
     }
 }

@@ -20,6 +20,23 @@ pub fn solve_first(input: String) -> Result {
         }
     }
 
+    Result::String(format_output(stacks))
+}
+
+pub fn solve_second(input: String) -> Result {
+    let (mut stacks, operations) = parse_input(input);
+
+    for (count, from, to) in operations {
+        let from_stack = &mut stacks[from];
+        let mut tmp_stack: Vec<u8> = from_stack.drain((from_stack.len() - count)..).collect();
+        let to_stack = &mut stacks[to];
+        to_stack.append(&mut tmp_stack);
+    }
+
+    Result::String(format_output(stacks))
+}
+
+fn format_output(stacks: Vec<Vec<u8>>) -> String {
     let mut top_of_stacks = String::new();
     for stack in &stacks {
         if let Some(top_of_stack) = stack.last() {
@@ -27,7 +44,7 @@ pub fn solve_first(input: String) -> Result {
         }
     }
 
-    Result::String(top_of_stacks)
+    top_of_stacks
 }
 
 fn parse_input(input: String) -> (Vec<Vec<u8>>, Vec<(usize, usize, usize)>) {
@@ -111,5 +128,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_string(String::from("CMZ"), solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_string(String::from("MCD"), solve_second(String::from(RAW_INPUT)));
     }
 }

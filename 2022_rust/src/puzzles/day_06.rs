@@ -3,17 +3,25 @@ use std::collections::HashSet;
 use super::Result;
 
 pub fn solve_first(input: String) -> Result {
+    find_distinct(input, 4)
+}
+
+pub fn solve_second(input: String) -> Result {
+    find_distinct(input, 14)
+}
+
+fn find_distinct(input: String, size: usize) -> Result {
     let datastream = input.trim_end().as_bytes();
     let datastream_length = datastream.len();
 
-    if datastream_length < 4 {
+    if datastream_length < size {
         panic!("Input is too short");
     }
 
-    for i in 0..(datastream_length - 3) {
-        let set: HashSet<_> = datastream[i..(i + 4)].iter().collect();
-        if set.len() == 4 {
-            return Result::Number((i + 4) as u32);
+    for i in 0..(datastream_length - size + 1) {
+        let set: HashSet<_> = datastream[i..(i + size)].iter().collect();
+        if set.len() == size {
+            return Result::Number((i + size) as u32);
         }
     }
 
@@ -39,5 +47,14 @@ mod tests {
         assert_eq_number(6, solve_first(String::from(RAW_INPUT_3)));
         assert_eq_number(10, solve_first(String::from(RAW_INPUT_4)));
         assert_eq_number(11, solve_first(String::from(RAW_INPUT_5)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(19, solve_second(String::from(RAW_INPUT_1)));
+        assert_eq_number(23, solve_second(String::from(RAW_INPUT_2)));
+        assert_eq_number(23, solve_second(String::from(RAW_INPUT_3)));
+        assert_eq_number(29, solve_second(String::from(RAW_INPUT_4)));
+        assert_eq_number(26, solve_second(String::from(RAW_INPUT_5)));
     }
 }

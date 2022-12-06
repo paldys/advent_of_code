@@ -1,8 +1,11 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
-pub fn solve_first(input: String) -> u32 {
-    input
+use super::Result;
+use crate::utils::unwrap_match_to_usize;
+
+pub fn solve_first(input: String) -> Result {
+    let res = input
         .trim_end()
         .split('\n')
         .map(parse_line)
@@ -10,22 +13,25 @@ pub fn solve_first(input: String) -> u32 {
             (left_start <= right_start && left_end >= right_end)
                 || (left_start >= right_start && left_end <= right_end)
         })
-        .count() as u32
+        .count() as u32;
+
+    Result::Number(res)
 }
 
-pub fn solve_second(input: String) -> u32 {
-    input
+pub fn solve_second(input: String) -> Result {
+    let res = input
         .trim_end()
         .split('\n')
         .map(parse_line)
         .filter(|[left_start, left_end, right_start, right_end]| {
-            (left_start <= right_start && left_end >= right_start)
-                || (left_start <= right_end && left_end >= right_start)
+            (left_start <= right_end || left_start <= right_start) && left_end >= right_start
         })
-        .count() as u32
+        .count() as u32;
+
+    Result::Number(res)
 }
 
-fn parse_line(line: &str) -> [u32; 4] {
+fn parse_line(line: &str) -> [usize; 4] {
     lazy_static! {
         static ref ASSIGNMENT_PAIR_RE: Regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
     }
@@ -33,23 +39,17 @@ fn parse_line(line: &str) -> [u32; 4] {
         .captures(line)
         .expect("Input line is not of expected format");
     [
-        unwrap_match_to_u32(captures.get(1)),
-        unwrap_match_to_u32(captures.get(2)),
-        unwrap_match_to_u32(captures.get(3)),
-        unwrap_match_to_u32(captures.get(4)),
+        unwrap_match_to_usize(captures.get(1)),
+        unwrap_match_to_usize(captures.get(2)),
+        unwrap_match_to_usize(captures.get(3)),
+        unwrap_match_to_usize(captures.get(4)),
     ]
-}
-
-fn unwrap_match_to_u32(re_match: Option<regex::Match<'_>>) -> u32 {
-    re_match
-        .unwrap()
-        .as_str()
-        .parse()
-        .expect("Expected a number here")
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::puzzles::assert_eq_number;
+
     use super::*;
 
     static RAW_INPUT: &str = "2-4,6-8\n\
@@ -61,12 +61,12 @@ mod tests {
 
     #[test]
     fn solves_first() {
-        assert_eq!(2, solve_first(String::from(RAW_INPUT)))
+        assert_eq_number(2, solve_first(String::from(RAW_INPUT)));
     }
 
     #[test]
     fn solves_second() {
-        assert_eq!(4, solve_second(String::from(RAW_INPUT)));
-        assert_eq!(1, solve_second(String::from("3-4,2-6")));
+        assert_eq_number(4, solve_second(String::from(RAW_INPUT)));
+        assert_eq_number(1, solve_second(String::from("3-4,2-6")));
     }
 }

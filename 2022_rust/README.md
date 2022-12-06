@@ -6,4 +6,4 @@ To run the code use `cargo run <day> <puzzle>`, e.g. `cargo run 7 2` will solve 
 
 To run tests use `cargo test`
 
-To format files use `cargo fmt`
+To format files use `cargo fmt`, to run linter use `cargo clippy`

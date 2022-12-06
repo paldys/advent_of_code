@@ -4,6 +4,7 @@ use clap::Parser;
 use std::fs;
 
 pub mod puzzles;
+pub mod utils;
 
 #[derive(Parser)]
 struct Args {
@@ -34,7 +35,9 @@ fn main() {
     };
 
     let input = fs::read_to_string(file_name).expect("Could not read input");
-    let answer = solver(input);
 
-    println!("Answer: {}", answer)
+    match solver(input) {
+        puzzles::Result::Number(number) => println!("Answer: {number}"),
+        puzzles::Result::String(string) => println!("Answer: {string}"),
+    }
 }

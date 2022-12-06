@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
-pub fn solve_first(input: String) -> u32 {
-    input
+use super::Result;
+
+pub fn solve_first(input: String) -> Result {
+    let res = input
         .trim_end()
         .split('\n')
         .map(|line| line.split_at(line.len() / 2))
@@ -14,15 +16,17 @@ pub fn solve_first(input: String) -> u32 {
         .flat_map(|(first_compartment, second_compartment)| {
             first_compartment
                 .intersection(&second_compartment)
-                .map(|i| *i)
+                .copied()
                 .collect::<Vec<char>>()
         })
         .map(item_priority)
-        .sum()
+        .sum();
+
+    Result::Number(res)
 }
 
-pub fn solve_second(input: String) -> u32 {
-    input
+pub fn solve_second(input: String) -> Result {
+    let res = input
         .trim_end()
         .split('\n')
         .map(|rucksack| rucksack.chars().collect::<HashSet<char>>())
@@ -32,11 +36,13 @@ pub fn solve_second(input: String) -> u32 {
                 .iter()
                 .filter(|i| rucksack2.contains(i))
                 .filter(|i| rucksack3.contains(i))
-                .map(|i| *i)
+                .copied()
                 .collect::<Vec<char>>()
         })
         .map(item_priority)
-        .sum()
+        .sum();
+
+    Result::Number(res)
 }
 
 fn item_priority(item: char) -> u32 {
@@ -50,6 +56,8 @@ fn item_priority(item: char) -> u32 {
 
 #[cfg(test)]
 mod tests {
+    use crate::puzzles::assert_eq_number;
+
     use super::*;
 
     static RAW_INPUT: &str = "vJrwpWtwJgWrhcsFMMfFFhFp\n\
@@ -61,11 +69,11 @@ mod tests {
 
     #[test]
     fn solves_first() {
-        assert_eq!(157, solve_first(String::from(RAW_INPUT)))
+        assert_eq_number(157, solve_first(String::from(RAW_INPUT)));
     }
 
     #[test]
     fn solves_second() {
-        assert_eq!(70, solve_second(String::from(RAW_INPUT)))
+        assert_eq_number(70, solve_second(String::from(RAW_INPUT)));
     }
 }

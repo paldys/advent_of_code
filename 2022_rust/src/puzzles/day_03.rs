@@ -16,7 +16,7 @@ pub fn solve_first(input: String) -> Result {
         .flat_map(|(first_compartment, second_compartment)| {
             first_compartment
                 .intersection(&second_compartment)
-                .map(|i| *i)
+                .copied()
                 .collect::<Vec<char>>()
         })
         .map(item_priority)
@@ -36,7 +36,7 @@ pub fn solve_second(input: String) -> Result {
                 .iter()
                 .filter(|i| rucksack2.contains(i))
                 .filter(|i| rucksack3.contains(i))
-                .map(|i| *i)
+                .copied()
                 .collect::<Vec<char>>()
         })
         .map(item_priority)

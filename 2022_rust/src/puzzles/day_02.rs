@@ -6,33 +6,33 @@ static SCORE_SHEET_1: phf::Map<char, phf::Map<char, u32>> = phf_map! {
     'A' => phf_map! {
         'X' => 1 + 3,
         'Y' => 2 + 6,
-        'Z' => 3 + 0,
+        'Z' => 3,
     },
     'B' => phf_map! {
-        'X' => 1 + 0,
+        'X' => 1,
         'Y' => 2 + 3,
         'Z' => 3 + 6,
     },
     'C' => phf_map! {
         'X' => 1 + 6,
-        'Y' => 2 + 0,
+        'Y' => 2,
         'Z' => 3 + 3,
     },
 };
 
 static SCORE_SHEET_2: phf::Map<char, phf::Map<char, u32>> = phf_map! {
     'A' => phf_map! {
-        'X' => 3 + 0,
+        'X' => 3,
         'Y' => 1 + 3,
         'Z' => 2 + 6,
     },
     'B' => phf_map! {
-        'X' => 1 + 0,
+        'X' => 1,
         'Y' => 2 + 3,
         'Z' => 3 + 6,
     },
     'C' => phf_map! {
-        'X' => 2 + 0,
+        'X' => 2,
         'Y' => 3 + 3,
         'Z' => 1 + 6,
     },
@@ -57,7 +57,7 @@ fn solve(input: String, score_sheet: &phf::Map<char, phf::Map<char, u32>>) -> u3
         let player: char = line
             .next()
             .expect("The expected line length is 3 characters");
-        match score_sheet.get(&opponent).map(|m| m.get(&player)).flatten() {
+        match score_sheet.get(&opponent).and_then(|m| m.get(&player)) {
             Some(current_score) => score += current_score,
             None => panic!("Unknown character"),
         }

@@ -24,8 +24,7 @@ pub fn solve_second(input: String) -> Result {
         .split('\n')
         .map(parse_line)
         .filter(|[left_start, left_end, right_start, right_end]| {
-            (left_start <= right_start && left_end >= right_start)
-                || (left_start <= right_end && left_end >= right_start)
+            (left_start <= right_end || left_start <= right_start) && left_end >= right_start
         })
         .count() as u32;
 

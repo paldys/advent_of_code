@@ -14,7 +14,9 @@ fn panic_not_implemented(_: String) -> Result {
     panic!("Not implemented")
 }
 
-pub fn get_all_puzzles() -> [(fn(String) -> Result, fn(String) -> Result); 25] {
+type Puzzle = (fn(String) -> Result, fn(String) -> Result);
+
+pub fn get_all_puzzles() -> [Puzzle; 25] {
     [
         (day_01::solve_first, day_01::solve_second),
         (day_02::solve_first, day_02::solve_second),

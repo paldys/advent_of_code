@@ -4,8 +4,10 @@ use regex::Regex;
 use super::Result;
 use crate::utils::unwrap_match_to_usize;
 
-const SPACE_CHAR: u8 = ' ' as u8;
 const STACK_STEPPER: usize = 4;
+
+type Stacks = Vec<Vec<u8>>;
+type Operation = (usize, usize, usize);
 
 pub fn solve_first(input: String) -> Result {
     let (mut stacks, operations) = parse_input(input);
@@ -36,7 +38,7 @@ pub fn solve_second(input: String) -> Result {
     Result::String(format_output(stacks))
 }
 
-fn format_output(stacks: Vec<Vec<u8>>) -> String {
+fn format_output(stacks: Stacks) -> String {
     let mut top_of_stacks = String::new();
     for stack in &stacks {
         if let Some(top_of_stack) = stack.last() {
@@ -47,25 +49,25 @@ fn format_output(stacks: Vec<Vec<u8>>) -> String {
     top_of_stacks
 }
 
-fn parse_input(input: String) -> (Vec<Vec<u8>>, Vec<(usize, usize, usize)>) {
-    let mut stacks: Vec<Vec<u8>> = Vec::new();
-    let mut operations: Vec<(usize, usize, usize)> = Vec::new();
+fn parse_input(input: String) -> (Stacks, Vec<Operation>) {
+    let mut stacks: Stacks = Vec::new();
+    let mut operations: Vec<Operation> = Vec::new();
     let mut parse_stacks = true;
     for line in input.trim_end().split('\n') {
         if parse_stacks {
             let line = line.as_bytes();
-            if '1' as u8 == line[1] {
+            if b'1' == line[1] {
                 parse_stacks = false;
                 continue;
             }
-            let mut iter = line.into_iter();
+            let mut iter = line.iter();
             iter.next(); // skip first char
             for (index, &item) in iter.enumerate().step_by(STACK_STEPPER) {
                 let stack_index = index / STACK_STEPPER;
                 if stacks.len() <= stack_index {
                     stacks.push(Vec::new());
                 }
-                if SPACE_CHAR != item {
+                if b' ' != item {
                     let stack = &mut stacks[stack_index];
                     stack.push(item);
                 }
@@ -82,7 +84,7 @@ fn parse_input(input: String) -> (Vec<Vec<u8>>, Vec<(usize, usize, usize)>) {
     (stacks, operations)
 }
 
-fn parse_operation(line: &str) -> (usize, usize, usize) {
+fn parse_operation(line: &str) -> Operation {
     lazy_static! {
         static ref OPERATION_RE: Regex = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
     }

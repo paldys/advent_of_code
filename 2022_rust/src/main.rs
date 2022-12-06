@@ -37,7 +37,7 @@ fn main() {
     let input = fs::read_to_string(file_name).expect("Could not read input");
 
     match solver(input) {
-        puzzles::Result::Number(number) => println!("Answer: {}", number),
-        puzzles::Result::String(string) => println!("Answer: {}", string),
+        puzzles::Result::Number(number) => println!("Answer: {number}"),
+        puzzles::Result::String(string) => println!("Answer: {string}"),
     }
 }

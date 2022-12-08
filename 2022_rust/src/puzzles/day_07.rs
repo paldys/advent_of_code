@@ -15,6 +15,29 @@ pub fn solve_first(input: String) -> Result {
     Result::Number(sum_dir_sizes_below(&root_directory, 100_000))
 }
 
+pub fn solve_second(input: String) -> Result {
+    let root_directory = parse_input(input);
+    let current_unused_space = 70_000_000 - root_directory.size;
+    let needed_space = 30_000_000 - current_unused_space;
+    find_smallest_above_limit(&root_directory, needed_space)
+        .map(Result::Number)
+        .expect("There isn't any directory that could help with space")
+}
+
+fn find_smallest_above_limit(directory: &Directory, limit: u32) -> Option<u32> {
+    let Directory { content, size } = directory;
+    let mut smallest_above_limit = None;
+    if *size > limit {
+        smallest_above_limit = Some(*size);
+    }
+    for child_directory in content.values() {
+        if let Some(size) = find_smallest_above_limit(child_directory, limit) {
+            smallest_above_limit = Some(size);
+        }
+    }
+    smallest_above_limit
+}
+
 // assuming we cd into every directory only once and ls them only once
 fn parse_input(input: String) -> Directory {
     let mut input_lines: Vec<&str> = input.trim_end().split('\n').collect();
@@ -145,5 +168,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(95437, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(24933642, solve_second(String::from(RAW_INPUT)));
     }
 }

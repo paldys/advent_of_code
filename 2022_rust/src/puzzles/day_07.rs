@@ -26,13 +26,17 @@ pub fn solve_second(input: String) -> Result {
 
 fn find_smallest_above_limit(directory: &Directory, limit: u32) -> Option<u32> {
     let Directory { content, size } = directory;
-    let mut smallest_above_limit = None;
-    if *size > limit {
-        smallest_above_limit = Some(*size);
+    if *size < limit {
+        return None;
     }
+    let mut smallest_above_limit = Some(*size);
     for child_directory in content.values() {
-        if let Some(size) = find_smallest_above_limit(child_directory, limit) {
-            smallest_above_limit = Some(size);
+        let child_smallest_above_limit = find_smallest_above_limit(child_directory, limit);
+        match (smallest_above_limit, child_smallest_above_limit) {
+            (Some(cur), Some(child)) if child < cur => {
+                smallest_above_limit = child_smallest_above_limit;
+            }
+            _ => (),
         }
     }
     smallest_above_limit

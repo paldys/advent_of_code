@@ -1,8 +1,8 @@
 #![feature(iter_array_chunks)]
 
 use clap::Parser;
-use std::fs;
 
+pub mod input_utils;
 pub mod puzzles;
 pub mod utils;
 
@@ -25,7 +25,6 @@ fn main() {
         panic!("Invalid day provided")
     }
 
-    let file_name = format!("resources/day_{:0>2}_input.txt", args.day);
     let days_puzzle = puzzles[args.day - 1];
 
     let solver = match args.part {
@@ -34,7 +33,7 @@ fn main() {
         _ => panic!("Invalid part provided"),
     };
 
-    let input = fs::read_to_string(file_name).expect("Could not read input");
+    let input = input_utils::get_input(args.day);
 
     match solver(input) {
         puzzles::Result::Number(number) => println!("Answer: {number}"),

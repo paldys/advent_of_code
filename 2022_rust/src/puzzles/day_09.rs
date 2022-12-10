@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, vec};
 
 use super::Result;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 enum Direction {
     Up,
     Right,
@@ -11,35 +11,52 @@ enum Direction {
 }
 
 pub fn solve_first(input: String) -> Result {
+    count_tail_visited(input, 2)
+}
+
+pub fn solve_second(input: String) -> Result {
+    count_tail_visited(input, 10)
+}
+
+fn count_tail_visited(input: String, length: usize) -> Result {
+    let mut rope = vec![(0, 0); length];
     let mut tail_visited: HashSet<(i32, i32)> = HashSet::new();
-    let mut tail_pos = (0, 0);
-    let mut head_pos = (0, 0);
-    tail_visited.insert(tail_pos);
+    tail_visited.insert(rope[length - 1]);
     for direction in parse_input(input) {
-        head_pos = match direction {
-            Direction::Up => (head_pos.0, head_pos.1 + 1),
-            Direction::Right => (head_pos.0 + 1, head_pos.1),
-            Direction::Down => (head_pos.0, head_pos.1 - 1),
-            Direction::Left => (head_pos.0 - 1, head_pos.1),
-        };
-        let new_tail_0 = if (head_pos.0 - tail_pos.0).abs() > 1 {
-            tail_pos.0 + (head_pos.0 - tail_pos.0).signum()
-        } else if (head_pos.1 - tail_pos.1).abs() > 1 && head_pos.0 != tail_pos.0 {
-            head_pos.0
-        } else {
-            tail_pos.0
-        };
-        let new_tail_1 = if (head_pos.1 - tail_pos.1).abs() > 1 {
-            tail_pos.1 + (head_pos.1 - tail_pos.1).signum()
-        } else if (head_pos.0 - tail_pos.0).abs() > 1 && head_pos.1 != tail_pos.1 {
-            head_pos.1
-        } else {
-            tail_pos.1
-        };
-        tail_pos = (new_tail_0, new_tail_1);
-        tail_visited.insert(tail_pos);
+        rope[0] = next_head_pos(rope[0], direction);
+        for i in 1..length {
+            rope[i] = next_pos(rope[i - 1], rope[i]);
+        }
+        tail_visited.insert(rope[length - 1]);
     }
     Result::Number(tail_visited.len() as u32)
+}
+
+fn next_head_pos(pos: (i32, i32), direction: Direction) -> (i32, i32) {
+    match direction {
+        Direction::Up => (pos.0, pos.1 + 1),
+        Direction::Right => (pos.0 + 1, pos.1),
+        Direction::Down => (pos.0, pos.1 - 1),
+        Direction::Left => (pos.0 - 1, pos.1),
+    }
+}
+
+fn next_pos(leader: (i32, i32), follower: (i32, i32)) -> (i32, i32) {
+    let new_tail_0 = if (leader.0 - follower.0).abs() > 1 {
+        follower.0 + (leader.0 - follower.0).signum()
+    } else if (leader.1 - follower.1).abs() > 1 && leader.0 != follower.0 {
+        leader.0
+    } else {
+        follower.0
+    };
+    let new_tail_1 = if (leader.1 - follower.1).abs() > 1 {
+        follower.1 + (leader.1 - follower.1).signum()
+    } else if (leader.0 - follower.0).abs() > 1 && leader.1 != follower.1 {
+        leader.1
+    } else {
+        follower.1
+    };
+    (new_tail_0, new_tail_1)
 }
 
 fn parse_input(input: String) -> Vec<Direction> {
@@ -67,7 +84,7 @@ mod tests {
 
     use super::*;
 
-    static RAW_INPUT: &str = "R 4\n\
+    static RAW_INPUT_1: &str = "R 4\n\
     U 4\n\
     L 3\n\
     D 1\n\
@@ -76,8 +93,23 @@ mod tests {
     L 5\n\
     R 2\n";
 
+    static RAW_INPUT_2: &str = "R 5\n\
+    U 8\n\
+    L 8\n\
+    D 3\n\
+    R 17\n\
+    D 10\n\
+    L 25\n\
+    U 20\n";
+
     #[test]
     fn solves_first() {
-        assert_eq_number(13, solve_first(String::from(RAW_INPUT)));
+        assert_eq_number(13, solve_first(String::from(RAW_INPUT_1)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(1, solve_second(String::from(RAW_INPUT_1)));
+        assert_eq_number(36, solve_second(String::from(RAW_INPUT_2)));
     }
 }

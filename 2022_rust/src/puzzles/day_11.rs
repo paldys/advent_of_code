@@ -16,12 +16,30 @@ struct Monkey {
     divisible_by: u64,
     on_true: usize,
     on_false: usize,
-    inspected: u32,
+    inspected: u64,
 }
 
 pub fn solve_first(input: String) -> Result {
     let mut monkeys = parse_input(input);
-    for _ in 0..20 {
+    Result::String(get_monkey_business(&mut monkeys, Box::new(|i| i / 3), 20))
+}
+
+pub fn solve_second(input: String) -> Result {
+    let mut monkeys = parse_input(input);
+    let simplify_by: u64 = monkeys.iter().map(|m| m.divisible_by).product();
+    Result::String(get_monkey_business(
+        &mut monkeys,
+        Box::new(move |i: u64| -> u64 { i % simplify_by }),
+        10_000,
+    ))
+}
+
+fn get_monkey_business(
+    monkeys: &mut Vec<Monkey>,
+    simplifier: Box<dyn Fn(u64) -> u64>,
+    rounds: usize,
+) -> String {
+    for _ in 0..rounds {
         for i in 0..monkeys.len() {
             let monkey = &mut monkeys[i];
             let items_to: Vec<(usize, u64)> = monkey
@@ -32,7 +50,8 @@ pub fn solve_first(input: String) -> Result {
                         Operation::Add(n) => *item + n,
                         Operation::Multiply(n) => *item * n,
                         Operation::Sqr() => *item * *item,
-                    } / 3;
+                    };
+                    let item = simplifier(item);
                     let to_monkey = if item % monkey.divisible_by == 0 {
                         monkey.on_true
                     } else {
@@ -42,7 +61,7 @@ pub fn solve_first(input: String) -> Result {
                 })
                 .collect();
             monkey.items.clear();
-            monkey.inspected += items_to.len() as u32;
+            monkey.inspected += items_to.len() as u64;
             for (to, item) in items_to {
                 monkeys[to].items.push(item);
             }
@@ -50,8 +69,12 @@ pub fn solve_first(input: String) -> Result {
     }
     monkeys.sort_by_key(|m| m.inspected);
     monkeys.reverse();
-    let monkey_business = monkeys.iter().take(2).map(|m| m.inspected).product();
-    Result::Number(monkey_business)
+    monkeys
+        .iter()
+        .take(2)
+        .map(|m| m.inspected)
+        .product::<u64>()
+        .to_string()
 }
 
 fn parse_input(input: String) -> Vec<Monkey> {
@@ -107,12 +130,17 @@ where
 #[cfg(test)]
 mod tests {
     use crate::input_utils::get_test_input;
-    use crate::puzzles::assert_eq_number;
+    use crate::puzzles::assert_eq_string;
 
     use super::*;
 
     #[test]
     fn solves_first() {
-        assert_eq_number(10605, solve_first(get_test_input(11)));
+        assert_eq_string(String::from("10605"), solve_first(get_test_input(11)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_string(String::from("2713310158"), solve_second(get_test_input(11)));
     }
 }

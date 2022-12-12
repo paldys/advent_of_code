@@ -1,8 +1,18 @@
 use super::Result;
 
 type MapWithStartAndEnd = (Vec<Vec<u8>>, (usize, usize), (usize, usize));
+type CheckAndGo =
+    fn(&mut Vec<(usize, usize)>, &mut [Vec<i32>], &[Vec<u8>], (usize, usize), (usize, usize)) -> ();
 
 pub fn solve_first(input: String) -> Result {
+    Result::Number(find_path(input, check_and_go))
+}
+
+pub fn solve_second(input: String) -> Result {
+    Result::Number(find_path(input, check_and_go_make_a_zero))
+}
+
+fn find_path(input: String, check_and_go: CheckAndGo) -> u32 {
     let (height_map, (start_x, start_y), (end_x, end_y)) = parse_input(input);
     let h = height_map.len();
     let w = height_map[0].len();
@@ -47,8 +57,7 @@ pub fn solve_first(input: String) -> Result {
             );
         }
     }
-
-    Result::Number(shortest_path[end_x][end_y] as u32)
+    shortest_path[end_x][end_y] as u32
 }
 
 fn check_and_go(
@@ -59,6 +68,25 @@ fn check_and_go(
     (to_x, to_y): (usize, usize),
 ) {
     if (shortest_path[to_x][to_y] == -1
+        || shortest_path[from_x][from_y] + 1 < shortest_path[to_x][to_y])
+        && height_map[from_x][from_y] + 1 >= height_map[to_x][to_y]
+    {
+        shortest_path[to_x][to_y] = shortest_path[from_x][from_y] + 1;
+        to_check.push((to_x, to_y));
+    }
+}
+
+fn check_and_go_make_a_zero(
+    to_check: &mut Vec<(usize, usize)>,
+    shortest_path: &mut [Vec<i32>],
+    height_map: &[Vec<u8>],
+    (from_x, from_y): (usize, usize),
+    (to_x, to_y): (usize, usize),
+) {
+    if shortest_path[to_x][to_y] == -1 && height_map[to_x][to_y] == b'a' {
+        shortest_path[to_x][to_y] = 0;
+        to_check.push((to_x, to_y));
+    } else if (shortest_path[to_x][to_y] == -1
         || shortest_path[from_x][from_y] + 1 < shortest_path[to_x][to_y])
         && height_map[from_x][from_y] + 1 >= height_map[to_x][to_y]
     {
@@ -110,5 +138,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(31, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(29, solve_second(String::from(RAW_INPUT)));
     }
 }

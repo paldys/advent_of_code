@@ -9,6 +9,7 @@ mod day_08;
 mod day_09;
 mod day_10;
 mod day_11;
+mod day_12;
 
 #[derive(Debug, PartialEq)]
 pub enum Result {
@@ -35,7 +36,7 @@ pub fn get_all_puzzles() -> [Puzzle; 25] {
         (day_09::solve_first, day_09::solve_second),
         (day_10::solve_first, day_10::solve_second),
         (day_11::solve_first, day_11::solve_second),
-        (panic_not_implemented, panic_not_implemented),
+        (day_12::solve_first, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),

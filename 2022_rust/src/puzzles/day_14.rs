@@ -12,15 +12,51 @@ pub fn solve_first(input: String) -> Result {
     let mut cave: Vec<Vec<bool>> = vec![vec![false; width + 1]; max_y + 1];
     fill_rocks(&mut cave, rock_paths, min_x);
 
+    let sand_count = simulate_sand(
+        &mut cave,
+        SAND_FALL_POSITION - min_x,
+        0,
+        Box::new(move |_, y| y == max_y),
+    );
+
+    Result::Number(sand_count)
+}
+
+pub fn solve_second(input: String) -> Result {
+    let (rock_paths, min_x, max_x, max_y) = parse_input(input);
+    let min_x = min(min_x, SAND_FALL_POSITION - max_y - 1) - 1;
+    let max_x = max(max_x, SAND_FALL_POSITION + max_y + 1) + 1;
+    let width = max_x - min_x;
+    let depth = max_y + 2;
+    let mut cave: Vec<Vec<bool>> = vec![vec![false; width + 1]; depth + 1];
+    fill_rocks(&mut cave, rock_paths, min_x);
+    fill_rocks(&mut cave, vec![vec![(0, depth), (width, depth)]], 0);
+
+    let start_x = SAND_FALL_POSITION - min_x;
+    let start_y = 0;
+
+    let sand_count = simulate_sand(
+        &mut cave,
+        start_x,
+        start_y,
+        Box::new(move |x, y| x == start_x && y == start_y),
+    );
+
+    Result::Number(sand_count)
+}
+
+fn simulate_sand(
+    cave: &mut [Vec<bool>],
+    start_x: usize,
+    start_y: usize,
+    stop_at: Box<dyn Fn(usize, usize) -> bool>,
+) -> u32 {
     let mut sand_count = 0;
 
     'outer: loop {
-        let mut sand_x = SAND_FALL_POSITION - min_x;
-        let mut sand_y = 0;
+        let mut sand_x = start_x;
+        let mut sand_y = start_y;
         loop {
-            if sand_y == max_y {
-                break 'outer;
-            }
             if !cave[sand_y + 1][sand_x] {
                 sand_y += 1;
             } else if !cave[sand_y + 1][sand_x - 1] {
@@ -29,15 +65,18 @@ pub fn solve_first(input: String) -> Result {
             } else if !cave[sand_y + 1][sand_x + 1] {
                 sand_x += 1;
                 sand_y += 1;
-            } else {
+            } else if !cave[sand_y][sand_x] {
                 cave[sand_y][sand_x] = true;
                 break;
+            }
+            if stop_at(sand_x, sand_y) {
+                break 'outer;
             }
         }
         sand_count += 1;
     }
 
-    Result::Number(sand_count)
+    sand_count
 }
 
 fn fill_rocks(cave: &mut [Vec<bool>], rock_paths: Vec<Vec<(usize, usize)>>, norm_x: usize) {
@@ -108,5 +147,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(24, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(93, solve_second(String::from(RAW_INPUT)));
     }
 }

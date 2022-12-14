@@ -1,4 +1,4 @@
-#![feature(iter_array_chunks)]
+#![feature(iter_array_chunks, iter_order_by)]
 
 use clap::Parser;
 

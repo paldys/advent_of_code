@@ -24,6 +24,33 @@ pub fn solve_first(input: String) -> Result {
     Result::Number(in_right_order)
 }
 
+pub fn solve_second(input: String) -> Result {
+    let parsed_pairs = parse_input(input);
+    let mut packets: Vec<&Packet> = parsed_pairs
+        .iter()
+        .flat_map(|(p1, p2)| vec![p1, p2])
+        .collect();
+    let divider_2 = Packet::Array(vec![Packet::Array(vec![Packet::Number(2)])]);
+    let divider_6 = Packet::Array(vec![Packet::Array(vec![Packet::Number(6)])]);
+    packets.push(&divider_2);
+    packets.push(&divider_6);
+    packets.sort_by(|p1, p2| check_order(p1, p2));
+    let decoder = packets
+        .iter()
+        .enumerate()
+        .map(|(i, p)| {
+            if check_order(p, &divider_2) == Ordering::Equal
+                || check_order(p, &divider_6) == Ordering::Equal
+            {
+                (i + 1) as u32
+            } else {
+                1
+            }
+        })
+        .product();
+    Result::Number(decoder)
+}
+
 fn check_order(p1: &Packet, p2: &Packet) -> Ordering {
     match (p1, p2) {
         (Packet::Number(n1), Packet::Number(n2)) => n1.cmp(n2),
@@ -102,5 +129,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(13, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(140, solve_second(String::from(RAW_INPUT)));
     }
 }

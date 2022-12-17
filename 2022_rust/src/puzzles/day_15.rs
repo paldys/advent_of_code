@@ -13,17 +13,12 @@ pub fn solve_first(input: String) -> Result {
 fn _solve_first(input: String, row: i64) -> Result {
     let sensors_and_beacons = parse_input(input);
 
-    let mut no_beacon_intervals: Vec<(i64, i64)> = Vec::new();
+    let mut sensors_with_reach: Vec<((i64, i64), i64)> = Vec::new();
     let mut beacon_or_sensor_in_row: HashSet<i64> = HashSet::new();
 
     for (s, b) in sensors_and_beacons {
-        let bs_distance = (s.0 - b.0).abs() + (s.1 - b.1).abs();
-        let row_distance = (s.1 - row).abs();
-        let row_border_distance = bs_distance - row_distance;
-        if row_border_distance < 0 {
-            continue;
-        }
-        no_beacon_intervals.push(((s.0 - row_border_distance), (s.0 + row_border_distance)));
+        let bs_distance = get_manhattan_distance(s, b);
+        sensors_with_reach.push((s, bs_distance));
         if s.1 == row {
             beacon_or_sensor_in_row.insert(s.0);
         }
@@ -32,7 +27,7 @@ fn _solve_first(input: String, row: i64) -> Result {
         }
     }
 
-    let no_beacon_intervals = optimize_intervals(no_beacon_intervals);
+    let no_beacon_intervals = get_no_beacon_intervals(&sensors_with_reach, row);
     let no_beacon_in_row = no_beacon_intervals
         .iter()
         .map(|i| i.1 - i.0 + 1)
@@ -41,13 +36,72 @@ fn _solve_first(input: String, row: i64) -> Result {
     Result::Number(no_beacon_in_row - beacon_or_sensor_in_row.len() as u32)
 }
 
+pub fn solve_second(input: String) -> Result {
+    _solve_second(input, 0, 4_000_000)
+}
+
+fn _solve_second(input: String, min: i64, max: i64) -> Result {
+    let sensors_and_beacons = parse_input(input);
+
+    let mut sensors_with_reach: Vec<((i64, i64), i64)> = Vec::new();
+
+    for (s, b) in sensors_and_beacons {
+        let bs_distance = get_manhattan_distance(s, b);
+        sensors_with_reach.push((s, bs_distance));
+    }
+
+    let mut possible_beacon: Option<(i128, i128)> = None;
+
+    for i in min..=max {
+        let no_beacon_intervals = get_no_beacon_intervals(&sensors_with_reach, i);
+        match no_beacon_intervals.last() {
+            Some((_, e)) if *e < max => {
+                possible_beacon = Some(((*e + 1) as i128, i as i128));
+                break;
+            }
+            Some((s, _)) if *s > min => {
+                possible_beacon = Some(((*s - 1) as i128, i as i128));
+                break;
+            }
+            None => panic!("Panic!!!"),
+            _ => (),
+        }
+    }
+
+    let tunning_freq = possible_beacon.map(|(x, y)| x * 4_000_000 + y).unwrap();
+
+    Result::String(tunning_freq.to_string())
+}
+
+fn get_manhattan_distance((x1, y1): (i64, i64), (x2, y2): (i64, i64)) -> i64 {
+    (x1 - x2).abs() + (y1 - y2).abs()
+}
+
+fn get_no_beacon_intervals(
+    sensors_with_reach: &Vec<((i64, i64), i64)>,
+    row: i64,
+) -> Vec<(i64, i64)> {
+    let mut no_beacon_intervals: Vec<(i64, i64)> = Vec::new();
+
+    for (s, reach) in sensors_with_reach {
+        let row_distance = (s.1 - row).abs();
+        let row_border_distance = reach - row_distance;
+        if row_border_distance < 0 {
+            continue;
+        }
+        no_beacon_intervals.push(((s.0 - row_border_distance), (s.0 + row_border_distance)));
+    }
+
+    optimize_intervals(no_beacon_intervals)
+}
+
 fn optimize_intervals(mut intervals: Vec<(i64, i64)>) -> Vec<(i64, i64)> {
     intervals.sort_by(|(a, _), (b, _)| a.cmp(b));
     let mut optimized_intervals: Vec<(i64, i64)> = Vec::new();
     for i2 in intervals {
         match optimized_intervals.pop() {
             None => optimized_intervals.push(i2),
-            Some((s1, e1)) if i2.0 <= e1 => optimized_intervals.push((s1, max(e1, i2.1))),
+            Some((s1, e1)) if i2.0 - 1 <= e1 => optimized_intervals.push((s1, max(e1, i2.1))),
             Some(i1) => {
                 optimized_intervals.push(i1);
                 optimized_intervals.push(i2);
@@ -84,7 +138,7 @@ fn parse_input(input: String) -> Vec<((i64, i64), (i64, i64))> {
 
 #[cfg(test)]
 mod tests {
-    use crate::puzzles::assert_eq_number;
+    use crate::puzzles::{assert_eq_number, assert_eq_string};
 
     use super::*;
 
@@ -106,5 +160,13 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(26, _solve_first(String::from(RAW_INPUT), 10));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_string(
+            String::from("56000011"),
+            _solve_second(String::from(RAW_INPUT), 0, 20),
+        );
     }
 }

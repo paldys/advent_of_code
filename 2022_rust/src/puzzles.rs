@@ -42,7 +42,7 @@ pub fn get_all_puzzles() -> [Puzzle; 25] {
         (day_12::solve_first, day_12::solve_second),
         (day_13::solve_first, day_13::solve_second),
         (day_14::solve_first, day_14::solve_second),
-        (day_15::solve_first, panic_not_implemented),
+        (day_15::solve_first, day_15::solve_second),
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),

@@ -14,6 +14,12 @@ struct Shape {
 }
 
 pub fn solve_first(input: String) -> Result {
+    let chamber = simulate_rock_falling(input, 2022);
+
+    Result::Number((chamber.len() - 1) as u32)
+}
+
+fn simulate_rock_falling(input: String, rock_count: usize) -> Vec<Vec<bool>> {
     let jet_pattern = parse_input(input);
     let jet_pattern_count = jet_pattern.len();
     let shapes = prepare_shapes();
@@ -23,7 +29,7 @@ pub fn solve_first(input: String) -> Result {
 
     let mut jet_push_n = 0;
 
-    for shape_n in 0..2022 {
+    for shape_n in 0..rock_count {
         let current_shape = &shapes[shape_n % shapes_count];
 
         let mut shape_position = (2, chamber.len() + 3);
@@ -44,7 +50,7 @@ pub fn solve_first(input: String) -> Result {
         add_rock(&mut chamber, current_shape, shape_position);
     }
 
-    Result::Number((chamber.len() - 1) as u32)
+    chamber
 }
 
 fn add_rock(chamber: &mut Vec<Vec<bool>>, shape: &Shape, (new_x, new_y): (usize, usize)) {

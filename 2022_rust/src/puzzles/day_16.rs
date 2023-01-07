@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet};
 
@@ -17,44 +18,117 @@ pub fn solve_first(input: String) -> Result {
     optimize_valve_system(&mut valve_system);
     floyd_warshall_the_system(&mut valve_system);
 
-    let pressure = find_most_pressure(&valve_system, "AA", 30, &HashSet::new(), 0);
+    let mut not_visited: HashSet<String> = valve_system
+        .keys()
+        .into_iter()
+        .map(|k| k.to_string())
+        .collect();
+    not_visited.remove("AA");
+    let pressure = find_most_pressure(
+        &valve_system,
+        &vec!["AA".to_string()],
+        &vec![],
+        30,
+        &not_visited,
+        0,
+    );
+
+    Result::Number(pressure)
+}
+
+pub fn solve_second(input: String) -> Result {
+    let mut valve_system = parse_input(input);
+    optimize_valve_system(&mut valve_system);
+    floyd_warshall_the_system(&mut valve_system);
+
+    let mut not_visited: HashSet<String> = valve_system
+        .keys()
+        .into_iter()
+        .map(|k| k.to_string())
+        .collect();
+    not_visited.remove("AA");
+
+    let pressure = find_most_pressure(
+        &valve_system,
+        &vec!["AA".to_string(), "AA".to_string()],
+        &vec![],
+        26,
+        &not_visited,
+        0,
+    );
 
     Result::Number(pressure)
 }
 
 fn find_most_pressure(
     valve_system: &HashMap<String, Valve>,
-    current_valve_name: &str,
+    current_free: &Vec<String>,
+    current_moving: &Vec<(String, u32)>,
     minutes_left: u32,
-    released: &HashSet<String>,
+    not_visited: &HashSet<String>,
     released_pressure: u32,
 ) -> u32 {
-    let mut next_released = released.clone();
-    next_released.insert(current_valve_name.to_string());
-    let mut most_pressure = released_pressure * minutes_left;
-    let current_valve = valve_system.get(current_valve_name).unwrap();
-    for (next_valve_name, distance) in &current_valve.tunnel_to {
-        if next_released.contains(next_valve_name) {
-            continue;
-        }
-        let distance = (*distance) as u32;
-        if distance + 1 < minutes_left {
-            let next_released_pressure =
-                released_pressure + valve_system.get(next_valve_name).unwrap().flow_rate;
-            let new_pressure = find_most_pressure(
-                valve_system,
-                next_valve_name,
-                minutes_left - 1 - distance,
-                &next_released,
-                next_released_pressure,
-            );
-            most_pressure = max(
-                most_pressure,
-                released_pressure * (distance + 1) + new_pressure,
-            );
+    if minutes_left == 0 {
+        return 0;
+    }
+    if not_visited.is_empty() && current_moving.is_empty() {
+        return released_pressure * minutes_left;
+    }
+
+    let mut next_free: Vec<String> = Vec::new();
+    let mut next_moving_tmp: Vec<(String, u32)> = Vec::new();
+    let mut next_released_pressure = released_pressure;
+
+    for (to_valve, distance) in current_moving {
+        if *distance == 1 {
+            next_released_pressure += valve_system.get(to_valve).unwrap().flow_rate;
+            next_free.push(to_valve.clone());
+        } else {
+            next_moving_tmp.push((to_valve.clone(), distance - 1))
         }
     }
-    most_pressure
+
+    let mut most_pressure = next_released_pressure * (minutes_left - 1);
+    if not_visited.is_empty() || current_free.is_empty() {
+        let next_pressure = find_most_pressure(
+            valve_system,
+            &next_free,
+            &next_moving_tmp,
+            minutes_left - 1,
+            not_visited,
+            next_released_pressure,
+        );
+        most_pressure = max(most_pressure, next_pressure);
+    } else {
+        let not_visited_vec: Vec<String> = not_visited.iter().map(|v| v.to_string()).collect();
+        let all_permutations = not_visited_vec.into_iter().permutations(current_free.len());
+
+        for perm in all_permutations {
+            let mut next_moving: Vec<(String, u32)> = next_moving_tmp.clone();
+            let mut next_not_visited = not_visited.clone();
+            for (from_valve, to_valve) in current_free.clone().into_iter().zip_eq(perm) {
+                next_not_visited.remove(&to_valve);
+                let distance = *valve_system
+                    .get(&from_valve)
+                    .unwrap()
+                    .tunnel_to
+                    .get(&to_valve)
+                    .unwrap() as u32;
+                next_moving.push((to_valve, distance));
+            }
+            let next_pressure = find_most_pressure(
+                valve_system,
+                &next_free,
+                &next_moving,
+                minutes_left - 1,
+                &next_not_visited,
+                next_released_pressure,
+            );
+            most_pressure = max(most_pressure, next_pressure);
+        }
+    }
+
+    released_pressure + most_pressure
 }
 
 fn floyd_warshall_the_system(valve_system: &mut HashMap<String, Valve>) {
@@ -169,5 +243,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(1651, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(1707, solve_second(String::from(RAW_INPUT)));
     }
 }

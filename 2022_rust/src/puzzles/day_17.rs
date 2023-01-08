@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::Result;
 
 const CHAMBER_WIDTH: usize = 7;
@@ -14,22 +16,31 @@ struct Shape {
 }
 
 pub fn solve_first(input: String) -> Result {
-    let chamber = simulate_rock_falling(input, 2022);
+    let height = simulate_rock_falling(input, 2022);
 
-    Result::Number((chamber.len() - 1) as u32)
+    Result::Number(height as u32)
 }
 
-fn simulate_rock_falling(input: String, rock_count: usize) -> Vec<Vec<bool>> {
+pub fn solve_second(input: String) -> Result {
+    let height = simulate_rock_falling(input, 1000000000000);
+
+    Result::String(height.to_string())
+}
+
+fn simulate_rock_falling(input: String, rock_count: usize) -> usize {
     let jet_pattern = parse_input(input);
     let jet_pattern_count = jet_pattern.len();
     let shapes = prepare_shapes();
     let shapes_count = shapes.len();
 
     let mut chamber = vec![vec![true; CHAMBER_WIDTH]];
+    let mut normalized_h = 0;
+    let mut repeat: HashMap<(usize, usize, u32), (usize, usize)> = HashMap::new();
 
     let mut jet_push_n = 0;
 
-    for shape_n in 0..rock_count {
+    let mut shape_n = 0;
+    while shape_n < rock_count {
         let current_shape = &shapes[shape_n % shapes_count];
 
         let mut shape_position = (2, chamber.len() + 3);
@@ -48,9 +59,48 @@ fn simulate_rock_falling(input: String, rock_count: usize) -> Vec<Vec<bool>> {
             shape_position = position_after_fall;
         }
         add_rock(&mut chamber, current_shape, shape_position);
+        if let Some(full_line_at) = find_full_line(&chamber, shape_position.1) {
+            chamber.drain(0..full_line_at);
+            normalized_h += full_line_at;
+
+            let chamber_hash = chamber_to_u32(&chamber);
+            let repeat_key = (
+                shape_n % shapes_count,
+                jet_push_n % jet_pattern_count,
+                chamber_hash,
+            );
+            if let Some((repeat_n, repeat_h)) = repeat.get(&repeat_key).copied() {
+                repeat.clear();
+
+                let repeated_after = shape_n - repeat_n;
+                let times = (rock_count - shape_n) / repeated_after;
+                normalized_h += times * (normalized_h - repeat_h);
+                shape_n += times * repeated_after;
+            } else {
+                repeat.insert(repeat_key, (shape_n, normalized_h));
+            }
+        }
+        shape_n += 1;
     }
 
-    chamber
+    normalized_h + chamber.len() - 1
+}
+
+fn chamber_to_u32(chamber: &Vec<Vec<bool>>) -> u32 {
+    let mut n = 0;
+    for r in chamber {
+        for c in r {
+            n <<= 1;
+            if *c {
+                n |= 1;
+            }
+        }
+    }
+    n
+}
+
+fn find_full_line(chamber: &Vec<Vec<bool>>, last_y: usize) -> Option<usize> {
+    (last_y..(chamber.len())).find(|&y| chamber[y].iter().all(|b| *b))
 }
 
 fn add_rock(chamber: &mut Vec<Vec<bool>>, shape: &Shape, (new_x, new_y): (usize, usize)) {
@@ -161,6 +211,7 @@ fn parse_input(input: String) -> Vec<Direction> {
 
 #[cfg(test)]
 mod tests {
+    use crate::input_utils::get_input;
     use crate::puzzles::assert_eq_number;
 
     use super::*;
@@ -170,5 +221,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(3068, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_for_100000() {
+        assert_eq!(155657, simulate_rock_falling(get_input(17), 100000));
     }
 }

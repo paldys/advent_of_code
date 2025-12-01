@@ -1,7 +1,30 @@
 use super::Result;
 
 pub fn solve_first(input: String) -> Result {
-    Result::Number(0)
+    let mut at_zero = 0;
+    let mut orientation = 50;
+    for raw_rotation in input.lines() {
+        let rotation = parse_line(raw_rotation);
+        orientation = match rotation {
+            Some(('L', l)) => orientation - l,
+            Some(('R', r)) => orientation + r,
+            _ => orientation,
+        };
+        orientation %= 100;
+        if orientation == 0 {
+            at_zero += 1;
+        }
+    }
+    Result::Number(at_zero)
+}
+
+fn parse_line(s: &str) -> Option<(char, i32)> {
+    let first = s.chars().next()?;
+    if first != 'L' && first != 'R' {
+        return None;
+    }
+    let num = s[1..].parse().ok()?;
+    Some((first, num))
 }
 
 #[cfg(test)]

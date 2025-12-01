@@ -18,6 +18,38 @@ pub fn solve_first(input: String) -> Result {
     Result::Number(at_zero)
 }
 
+pub fn solve_second(input: String) -> Result {
+    let mut at_zero = 0;
+    let mut orientation = 50;
+    for raw_rotation in input.lines() {
+        let rotation = parse_line(raw_rotation);
+        orientation = match rotation {
+            Some((c, t)) => {
+                at_zero += (t / 100) as u32;
+                let n = t % 100;
+                match c {
+                    'L' => {
+                        if orientation != 0 && orientation <= n {
+                            at_zero += 1;
+                        }
+                        orientation - n
+                    }
+                    'R' => {
+                        if orientation + n >= 100 {
+                            at_zero += 1;
+                        }
+                        orientation + n
+                    }
+                    _ => orientation,
+                }
+            }
+            _ => orientation,
+        };
+        orientation = orientation.rem_euclid(100);
+    }
+    Result::Number(at_zero)
+}
+
 fn parse_line(s: &str) -> Option<(char, i32)> {
     let first = s.chars().next()?;
     if first != 'L' && first != 'R' {
@@ -47,5 +79,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(3, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(6, solve_second(String::from(RAW_INPUT)));
     }
 }

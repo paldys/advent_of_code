@@ -14,7 +14,7 @@ type Puzzle = (fn(String) -> Result, fn(String) -> Result);
 
 pub fn get_all_puzzles() -> [Puzzle; 12] {
     [
-        (day_01::solve_first, panic_not_implemented),
+        (day_01::solve_first, day_01::solve_second),
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),
         (panic_not_implemented, panic_not_implemented),

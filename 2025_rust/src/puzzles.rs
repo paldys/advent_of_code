@@ -1,0 +1,38 @@
+mod day_01;
+
+#[derive(Debug, PartialEq)]
+pub enum Result {
+    Number(u32),
+    String(String),
+}
+
+fn panic_not_implemented(_: String) -> Result {
+    panic!("Not implemented")
+}
+
+type Puzzle = (fn(String) -> Result, fn(String) -> Result);
+
+pub fn get_all_puzzles() -> [Puzzle; 12] {
+    [
+        (day_01::solve_first, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+        (panic_not_implemented, panic_not_implemented),
+    ]
+}
+
+pub fn assert_eq_number(expected: u32, actual: Result) {
+    assert_eq!(Result::Number(expected), actual)
+}
+
+pub fn assert_eq_string(expected: String, actual: Result) {
+    assert_eq!(Result::String(expected), actual)
+}

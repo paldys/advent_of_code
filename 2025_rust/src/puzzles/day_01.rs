@@ -1,7 +1,7 @@
 use super::Result;
 
 pub fn solve_first(input: String) -> Result {
-    let mut at_zero = 0;
+    let mut at_zero = 0_u64;
     let mut orientation = 50;
     for raw_rotation in input.lines() {
         let rotation = parse_line(raw_rotation);
@@ -47,7 +47,7 @@ pub fn solve_second(input: String) -> Result {
         };
         orientation = orientation.rem_euclid(100);
     }
-    Result::Number(at_zero)
+    Result::Number(at_zero.into())
 }
 
 fn parse_line(s: &str) -> Option<(char, i32)> {

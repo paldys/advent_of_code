@@ -2,7 +2,7 @@ mod day_01;
 
 #[derive(Debug, PartialEq)]
 pub enum Result {
-    Number(u32),
+    Number(u64),
     String(String),
 }
 
@@ -29,7 +29,7 @@ pub fn get_all_puzzles() -> [Puzzle; 12] {
     ]
 }
 
-pub fn assert_eq_number(expected: u32, actual: Result) {
+pub fn assert_eq_number(expected: u64, actual: Result) {
     assert_eq!(Result::Number(expected), actual)
 }
 

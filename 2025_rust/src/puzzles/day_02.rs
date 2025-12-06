@@ -1,47 +1,47 @@
 use super::Result;
-use std::collections::BTreeMap;
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
 pub fn solve_first(input: String) -> Result {
-    let mut sum = 0;
-    let ranges = parse_ranges(input);
-    if let Some((_, max)) = ranges.last_key_value() {
-        let invalid_ids = generate_invalid_ids(*max);
-        for id in invalid_ids {
-            if let Some((lo, up)) = ranges.range(..=id).next_back()
-                && *lo <= id
-                && id <= *up
-            {
-                sum += id;
-            }
-        }
-    }
-    Result::Number(sum)
+    solve_with(input, generate_invalid_ids)
 }
 
 pub fn solve_second(input: String) -> Result {
-    let mut sum = 0;
-    let ranges = parse_ranges(input);
-    if let Some((_, max)) = ranges.last_key_value() {
-        let invalid_ids = generate_invalid_ids_part2(*max);
-        for id in invalid_ids {
-            if let Some((lo, up)) = ranges.range(..=id).next_back()
-                && *lo <= id
-                && id <= *up
-            {
-                sum += id;
-            }
-        }
-    }
+    solve_with(input, generate_invalid_ids_part2)
+}
+
+fn solve_with(input: String, generator: impl Fn(u64) -> HashSet<u64>) -> Result {
+    let ranges = parse_ranges(&input);
+
+    let Some((_, max)) = ranges.last_key_value() else {
+        return Result::Number(0);
+    };
+
+    let invalid_ids = generator(*max);
+
+    let sum: u64 = invalid_ids
+        .into_iter()
+        .filter(|&id| {
+            ranges
+                .range(..=id)
+                .next_back()
+                .map(|(_, up)| id <= *up)
+                .unwrap_or(false)
+        })
+        .sum();
+
     Result::Number(sum)
+}
+
+fn init_invalid_id_state() -> (u64, u64, u64) {
+    let i = 1;
+    let m = 10;
+    let n = i * m + i;
+    (i, m, n)
 }
 
 fn generate_invalid_ids(max: u64) -> HashSet<u64> {
     let mut invalid_ids = HashSet::new();
-
-    let mut i = 1_u64;
-    let mut m = 10_u64;
-    let mut n = i * m + i;
+    let (mut i, mut m, mut n) = init_invalid_id_state();
 
     while n <= max {
         invalid_ids.insert(n);
@@ -60,16 +60,13 @@ fn generate_invalid_ids(max: u64) -> HashSet<u64> {
 
 fn generate_invalid_ids_part2(max: u64) -> HashSet<u64> {
     let mut invalid_ids = HashSet::new();
+    let (mut i, mut m, mut n) = init_invalid_id_state();
 
-    let mut i = 1_u64;
-    let mut m = 10_u64;
-    let mut n = i * m + i;
+    while n <= max {
+        invalid_ids.insert(n);
+        n = n * m + i;
 
-    loop {
-        if n <= max {
-            invalid_ids.insert(n);
-            n = n * m + i;
-        } else {
+        if n > max {
             if i + 1 < m {
                 i += 1;
             } else {
@@ -77,17 +74,13 @@ fn generate_invalid_ids_part2(max: u64) -> HashSet<u64> {
                 m *= 10;
             }
             n = i * m + i;
-
-            if n > max {
-                break;
-            }
         }
     }
 
     invalid_ids
 }
 
-fn parse_ranges(input: String) -> BTreeMap<u64, u64> {
+fn parse_ranges(input: &str) -> BTreeMap<u64, u64> {
     input
         .trim()
         .split(',')
@@ -96,17 +89,8 @@ fn parse_ranges(input: String) -> BTreeMap<u64, u64> {
 }
 
 fn parse_range(s: &str) -> Option<(u32, u64, u64)> {
-    let mut range: Vec<_> = s.split('-').collect();
-    let upper = range.pop();
-    let lower = range.pop();
-    match (lower, upper) {
-        (Some(l), Some(u)) => Some((
-            l.len().try_into().unwrap(),
-            l.parse().ok()?,
-            u.parse().ok()?,
-        )),
-        _ => None,
-    }
+    let (l, u) = s.split_once('-')?;
+    Some((l.len() as u32, l.parse().ok()?, u.parse().ok()?))
 }
 
 #[cfg(test)]

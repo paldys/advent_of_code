@@ -4,25 +4,15 @@ use std::collections::HashSet;
 
 pub fn solve_first(input: String) -> Result {
     let mut sum = 0;
-    for raw_range in input.trim().split(',') {
-        let range = parse_range(raw_range);
-        if let Some((len, lower, upper)) = range {
-            let mut s = if len % 2 == 1 { len / 2 + 1 } else { len / 2 };
-            let mut d = 10_u64.pow(s) + 1;
-            let mut half = if len % 2 == 1 { starter(s) } else { lower / d };
-            let mut full = half * d;
-            while full <= upper {
-                if full >= lower {
-                    sum += full;
-                }
-                half += 1;
-                full += d;
-                if half == d - 1 {
-                    s += 1;
-                    d = 10_u64.pow(s) + 1;
-                    half = starter(2);
-                    full = starter(s) * d;
-                }
+    let ranges = parse_ranges(input);
+    if let Some((_, max)) = ranges.last_key_value() {
+        let invalid_ids = generate_invalid_ids(*max);
+        for id in invalid_ids {
+            if let Some((lo, up)) = ranges.range(..=id).next_back()
+                && *lo <= id
+                && id <= *up
+            {
+                sum += id;
             }
         }
     }
@@ -33,22 +23,42 @@ pub fn solve_second(input: String) -> Result {
     let mut sum = 0;
     let ranges = parse_ranges(input);
     if let Some((_, max)) = ranges.last_key_value() {
-        let invalid_ids = generate_invalid_ids(*max);
+        let invalid_ids = generate_invalid_ids_part2(*max);
         for id in invalid_ids {
-            if let Some((lo, up)) = ranges.range(..=id).next_back() 
-                && *lo <= id && id <= *up {
-                    sum += id;
+            if let Some((lo, up)) = ranges.range(..=id).next_back()
+                && *lo <= id
+                && id <= *up
+            {
+                sum += id;
             }
         }
     }
     Result::Number(sum)
 }
 
-fn starter(scale: u32) -> u64 {
-    10_u64.pow(scale - 1)
+fn generate_invalid_ids(max: u64) -> HashSet<u64> {
+    let mut invalid_ids = HashSet::new();
+
+    let mut i = 1_u64;
+    let mut m = 10_u64;
+    let mut n = i * m + i;
+
+    while n <= max {
+        invalid_ids.insert(n);
+
+        if i + 1 < m {
+            i += 1;
+        } else {
+            i += 1;
+            m *= 10;
+        }
+        n = i * m + i;
+    }
+
+    invalid_ids
 }
 
-fn generate_invalid_ids(max: u64) -> HashSet<u64> {
+fn generate_invalid_ids_part2(max: u64) -> HashSet<u64> {
     let mut invalid_ids = HashSet::new();
 
     let mut i = 1_u64;

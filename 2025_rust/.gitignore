@@ -12,3 +12,6 @@ Cargo.lock
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+# Puzzle inputs are saved in resources, as per Advent of Code guidance, let's hide them
+resources/

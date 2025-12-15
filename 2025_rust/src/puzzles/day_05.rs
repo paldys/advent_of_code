@@ -17,6 +17,12 @@ pub fn solve_first(input: String) -> Result {
     Result::Number(fresh_available as u64)
 }
 
+pub fn solve_second(input: String) -> Result {
+    let (fresh, _) = parse_input(&input);
+    let all_fresh = fresh.iter().map(|(start, end)| end + 1 - start).sum();
+    Result::Number(all_fresh)
+}
+
 fn parse_input(input: &str) -> (BTreeMap<u64, u64>, Vec<u64>) {
     let mut fresh = BTreeMap::new();
     let mut available = Vec::new();
@@ -40,6 +46,18 @@ fn parse_input(input: &str) -> (BTreeMap<u64, u64>, Vec<u64>) {
 fn add_range(fresh: &mut BTreeMap<u64, u64>, start: u64, end: u64) {
     let mut new_start = start;
     let mut new_end = end;
+    if let Some((&s, &e)) = fresh.range(..=start).next_back()
+        && start <= e
+    {
+        if new_start > s {
+            new_start = s;
+        }
+        if new_end < e {
+            new_end = e;
+        }
+        fresh.remove(&s);
+    }
+
     let ranges: Vec<(u64, u64)> = fresh
         .range((Included(start), Included(end)))
         .map(|(k, v)| (*k, *v))
@@ -79,5 +97,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(3, solve_first(String::from(RAW_INPUT)));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(14, solve_second(String::from(RAW_INPUT)));
     }
 }

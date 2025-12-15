@@ -1,5 +1,16 @@
 use super::Result;
 
+const NEIGHBORS: [(isize, isize); 8] = [
+    (-1, -1),
+    (-1, 0),
+    (-1, 1),
+    (0, -1),
+    (0, 1),
+    (1, -1),
+    (1, 0),
+    (1, 1),
+];
+
 #[derive(PartialEq)]
 enum GridValue {
     Roll,
@@ -37,62 +48,32 @@ fn solve(input: String, only_first: bool) -> Result {
         while let Some((y, x)) = stack.pop() {
             if grid[y][x] == GridValue::Roll {
                 rolls += 1;
-                grid[y][x] = GridValue::Empty;
-                if y > 0 {
-                    if x > 0 && grid[y - 1][x - 1] == GridValue::Roll {
-                        neighbors[y - 1][x - 1] -= 1;
-                        if neighbors[y - 1][x - 1] < 4 {
-                            stack.push((y - 1, x - 1));
-                        }
-                    }
-                    if grid[y - 1][x] == GridValue::Roll {
-                        neighbors[y - 1][x] -= 1;
-                        if neighbors[y - 1][x] < 4 {
-                            stack.push((y - 1, x));
-                        }
-                    }
-                    if x < cols - 1 && grid[y - 1][x + 1] == GridValue::Roll {
-                        neighbors[y - 1][x + 1] -= 1;
-                        if neighbors[y - 1][x + 1] < 4 {
-                            stack.push((y - 1, x + 1));
-                        }
-                    }
-                }
-                if x > 0 && grid[y][x - 1] == GridValue::Roll {
-                    neighbors[y][x - 1] -= 1;
-                    if neighbors[y][x - 1] < 4 {
-                        stack.push((y, x - 1));
-                    }
-                }
-                if x < cols - 1 && grid[y][x + 1] == GridValue::Roll {
-                    neighbors[y][x + 1] -= 1;
-                    if neighbors[y][x + 1] < 4 {
-                        stack.push((y, x + 1));
-                    }
-                }
-                if y < rows - 1 {
-                    if x > 0 && grid[y + 1][x - 1] == GridValue::Roll {
-                        neighbors[y + 1][x - 1] -= 1;
-                        if neighbors[y + 1][x - 1] < 4 {
-                            stack.push((y + 1, x - 1));
-                        }
-                    }
-                    if grid[y + 1][x] == GridValue::Roll {
-                        neighbors[y + 1][x] -= 1;
-                        if neighbors[y + 1][x] < 4 {
-                            stack.push((y + 1, x));
-                        }
-                    }
-                    if x < cols - 1 && grid[y + 1][x + 1] == GridValue::Roll {
-                        neighbors[y + 1][x + 1] -= 1;
-                        if neighbors[y + 1][x + 1] < 4 {
-                            stack.push((y + 1, x + 1));
-                        }
-                    }
-                }
+                process_roll(y, x, &mut grid, &mut neighbors, &mut stack);
             }
         }
         Result::Number(rolls)
+    }
+}
+
+fn process_roll(
+    y: usize,
+    x: usize,
+    grid: &mut [Vec<GridValue>],
+    neighbors: &mut [Vec<u32>],
+    stack: &mut Vec<(usize, usize)>,
+) {
+    grid[y][x] = GridValue::Empty;
+
+    let rows = grid.len();
+    let cols = grid[0].len();
+
+    for (ny, nx) in neighbors_of(y, x, rows, cols) {
+        if grid[ny][nx] == GridValue::Roll {
+            neighbors[ny][nx] -= 1;
+            if neighbors[ny][nx] < 4 {
+                stack.push((ny, nx));
+            }
+        }
     }
 }
 
@@ -104,27 +85,31 @@ fn calculate_neighbors(rows: usize, cols: usize, grid: &[Vec<GridValue>]) -> Vec
                 neighbors[y][x] = 8;
                 continue;
             }
-            if x < cols - 1 && grid[y][x + 1] == GridValue::Roll {
-                neighbors[y][x] += 1;
-                neighbors[y][x + 1] += 1;
-            }
-            if y < rows - 1 {
-                if x > 0 && grid[y + 1][x - 1] == GridValue::Roll {
+            for (ny, nx) in neighbors_of(y, x, rows, cols) {
+                if grid[ny][nx] == GridValue::Roll {
                     neighbors[y][x] += 1;
-                    neighbors[y + 1][x - 1] += 1;
-                }
-                if grid[y + 1][x] == GridValue::Roll {
-                    neighbors[y][x] += 1;
-                    neighbors[y + 1][x] += 1;
-                }
-                if x < cols - 1 && grid[y + 1][x + 1] == GridValue::Roll {
-                    neighbors[y][x] += 1;
-                    neighbors[y + 1][x + 1] += 1;
                 }
             }
         }
     }
     neighbors
+}
+
+fn neighbors_of(
+    y: usize,
+    x: usize,
+    rows: usize,
+    cols: usize,
+) -> impl Iterator<Item = (usize, usize)> {
+    NEIGHBORS.into_iter().filter_map(move |(dy, dx)| {
+        let ny = y as isize + dy;
+        let nx = x as isize + dx;
+        if ny >= 0 && nx >= 0 && ny < rows as isize && nx < cols as isize {
+            Some((ny as usize, nx as usize))
+        } else {
+            None
+        }
+    })
 }
 
 fn parse_input(input: &str) -> Vec<Vec<GridValue>> {

@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 struct Circuits {
     parent: Vec<usize>,
     size: Vec<usize>,
+    length: usize,
 }
 
 impl Circuits {
@@ -11,6 +12,7 @@ impl Circuits {
         Self {
             parent: (0..n).collect(),
             size: vec![1; n],
+            length: n,
         }
     }
 
@@ -29,6 +31,8 @@ impl Circuits {
             return;
         }
 
+        self.length -= 1;
+
         if self.size[ra] < self.size[rb] {
             self.parent[ra] = rb;
             self.size[rb] += self.size[ra];
@@ -45,15 +49,7 @@ pub fn solve_first(input: String) -> Result {
 
 fn solve_first_with_count(input: String, count: usize) -> Result {
     let points = parse_input(&input);
-    let mut distances = BTreeMap::new();
-    for left in 0..points.len() {
-        for right in (left + 1)..points.len() {
-            let (x1, y1, z1) = points[left];
-            let (x2, y2, z2) = points[right];
-            let distance = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2);
-            distances.insert(distance, (left, right));
-        }
-    }
+    let distances = get_distances(&points);
     let mut circuits = Circuits::new(points.len());
     for (_, &(left, right)) in distances.iter().take(count) {
         circuits.merge(left, right);
@@ -66,6 +62,32 @@ fn solve_first_with_count(input: String, count: usize) -> Result {
     }
     let res: usize = circuit_sizes.iter().rev().take(3).product();
     Result::Number(res as u64)
+}
+
+pub fn solve_second(input: String) -> Result {
+    let points = parse_input(&input);
+    let distances = get_distances(&points);
+    let mut circuits = Circuits::new(points.len());
+    for (_, &(left, right)) in distances.iter() {
+        circuits.merge(left, right);
+        if circuits.length == 1 {
+            return Result::Number((points[left].0 * points[right].0) as u64);
+        }
+    }
+    unreachable!("should have found the end")
+}
+
+fn get_distances(points: &[(i64, i64, i64)]) -> BTreeMap<i64, (usize, usize)> {
+    let mut distances = BTreeMap::new();
+    for left in 0..points.len() {
+        for right in (left + 1)..points.len() {
+            let (x1, y1, z1) = points[left];
+            let (x2, y2, z2) = points[right];
+            let distance = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2);
+            distances.insert(distance, (left, right));
+        }
+    }
+    distances
 }
 
 fn parse_input(input: &str) -> Vec<(i64, i64, i64)> {
@@ -112,5 +134,10 @@ mod tests {
     #[test]
     fn solves_first() {
         assert_eq_number(40, solve_first_with_count(String::from(RAW_INPUT), 10));
+    }
+
+    #[test]
+    fn solves_second() {
+        assert_eq_number(25272, solve_second(String::from(RAW_INPUT)));
     }
 }
